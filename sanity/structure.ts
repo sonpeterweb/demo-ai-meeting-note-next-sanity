@@ -7,6 +7,11 @@ import {
   Quote,
   Menu,
   Settings,
+  Wallet,
+  History,
+  Sparkles,
+  ShieldCheck,
+  AudioLines,
 } from "lucide-react";
 
 export const structure = (S: any, context: any) =>
@@ -53,6 +58,46 @@ export const structure = (S: any, context: any) =>
         type: "testimonial",
         title: "Testimonials",
         icon: Quote,
+        S,
+        context,
+      }),
+      orderableDocumentListDeskItem({
+        type: "pricing-tier",
+        title: "Pricing Tiers",
+        icon: Wallet,
+        S,
+        context,
+      }),
+      S.listItem()
+        .title("Changelog")
+        .icon(History)
+        .child(
+          S.documentTypeList("changelog-entry")
+            .title("Changelog Entries")
+            .defaultOrdering([
+              { field: "releaseDate", direction: "desc" },
+              { field: "_createdAt", direction: "desc" },
+            ])
+        ),
+      orderableDocumentListDeskItem({
+        type: "ai-demo-sample",
+        title: "AI Demo Samples",
+        icon: AudioLines,
+        S,
+        context,
+      }),
+      S.listItem()
+        .title("AI Demo Configurations")
+        .icon(Sparkles)
+        .child(
+          S.documentTypeList("ai-demo-config")
+            .title("AI Demo Configs")
+            .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+        ),
+      orderableDocumentListDeskItem({
+        type: "admin-user",
+        title: "Admin Users",
+        icon: ShieldCheck,
         S,
         context,
       }),
