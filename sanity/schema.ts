@@ -1,13 +1,18 @@
 import { type SchemaTypeDefinition } from "sanity";
 // documents
-import page from "./schemas/documents/page";
-import post from "./schemas/documents/post";
 import author from "./schemas/documents/author";
 import category from "./schemas/documents/category";
 import faq from "./schemas/documents/faq";
 import testimonial from "./schemas/documents/testimonial";
 import navigation from "./schemas/documents/navigation";
 import settings from "./schemas/documents/settings";
+import page from "./schemas/documents/page";
+import post from "./schemas/documents/post";
+import pricingTier from "./schemas/documents/pricing-tier";
+import changelogEntry from "./schemas/documents/changelog-entry";
+import aiDemoSample from "./schemas/documents/ai-demo-sample";
+import aiDemoConfig from "./schemas/documents/ai-demo-config";
+import adminUser from "./schemas/documents/admin-user";
 
 // Schema UI shared objects
 import blockContent from "./schemas/blocks/shared/block-content";
@@ -43,14 +48,19 @@ import allPosts from "./schemas/blocks/all-posts";
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
-    page,
-    post,
     author,
     category,
     faq,
     testimonial,
     navigation,
     settings,
+    page,
+    post,
+    pricingTier,
+    changelogEntry,
+    aiDemoSample,
+    aiDemoConfig,
+    adminUser,
     // shared objects
     blockContent,
     link,
