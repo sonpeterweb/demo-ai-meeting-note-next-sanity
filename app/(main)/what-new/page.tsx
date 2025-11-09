@@ -21,6 +21,12 @@ const impactLabels: Record<string, string> = {
   fix: "Bug fix",
 };
 
+export const metadata = {
+  title: "What’s New | Listenote Product Updates",
+  description:
+    "Track Listenote releases, AI enhancements, and admin improvements that help your team turn meetings into momentum.",
+};
+
 export const revalidate = 60;
 
 export default async function WhatsNewPage() {
@@ -32,7 +38,7 @@ export default async function WhatsNewPage() {
   ];
 
   return (
-    <main className="pb-12 md:pb-16 lg:pb-20">
+    <div className="pb-12 md:pb-16 lg:pb-20">
       <SectionContainer className="bg-slate-900/[0.02] py-24 dark:bg-slate-100/[0.04] md:py-28">
         <div className="mx-auto max-w-4xl space-y-6 text-center">
           <Badge
@@ -151,7 +157,7 @@ export default async function WhatsNewPage() {
           ) : null}
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

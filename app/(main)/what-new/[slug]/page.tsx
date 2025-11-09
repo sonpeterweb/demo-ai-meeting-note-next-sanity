@@ -28,8 +28,8 @@ const impactLabels: Record<string, string> = {
 export async function generateStaticParams() {
   const slugs = await fetchChangelogSlugs();
   return slugs
-    .filter((slug) => slug?.slug)
-    .map((slug) => ({ slug: slug.slug }));
+    .filter((slug) => slug.slug?.current)
+    .map((slug) => ({ slug: slug.slug?.current as string }));
 }
 
 export async function generateMetadata(props: {
@@ -69,7 +69,7 @@ export default async function ChangelogEntryPage(props: {
   ];
 
   return (
-    <main>
+    <>
       <SectionContainer className="bg-slate-900/[0.02] py-24 dark:bg-slate-100/[0.04] md:py-28">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
           <Badge
@@ -143,7 +143,7 @@ export default async function ChangelogEntryPage(props: {
           </footer>
         </div>
       </section>
-    </main>
+    </>
   );
 }
 
