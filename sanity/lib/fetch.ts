@@ -8,6 +8,11 @@ import {
   POSTS_SLUGS_QUERY,
 } from "@/sanity/queries/post";
 import {
+  CHANGELOG_ENTRIES_QUERY,
+  CHANGELOG_ENTRY_QUERY,
+} from "@/sanity/queries/changelog/changelog-entry";
+import { groq } from "next-sanity";
+import {
   PAGE_QUERYResult,
   PAGES_SLUGS_QUERYResult,
   POST_QUERYResult,
@@ -15,6 +20,8 @@ import {
   POSTS_SLUGS_QUERYResult,
   NAVIGATION_QUERYResult,
   SETTINGS_QUERYResult,
+  CHANGELOG_ENTRIES_QUERYResult,
+  CHANGELOG_ENTRY_QUERYResult,
 } from "@/sanity.types";
 
 export const fetchSanityPageBySlug = async ({
@@ -89,3 +96,37 @@ export const fetchSanitySettings = async (): Promise<SETTINGS_QUERYResult> => {
 
   return data;
 };
+
+type ChangelogSlug = {
+  slug?: {
+    current?: string | null;
+  } | null;
+};
+
+export async function fetchChangelogEntries(): Promise<CHANGELOG_ENTRIES_QUERYResult> {
+  const { data } = await sanityFetch({
+    query: CHANGELOG_ENTRIES_QUERY,
+  });
+  return data;
+}
+
+export async function fetchChangelogEntryBySlug({
+  slug,
+}: {
+  slug: string;
+}): Promise<CHANGELOG_ENTRY_QUERYResult> {
+  const { data } = await sanityFetch({
+    query: CHANGELOG_ENTRY_QUERY,
+    params: { slug },
+  });
+  return data;
+}
+
+export async function fetchChangelogSlugs(): Promise<ChangelogSlug[]> {
+  const { data } = await sanityFetch({
+    query: groq`*[_type == "changelog-entry" && defined(slug.current)]{slug}`,
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}

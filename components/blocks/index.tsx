@@ -12,6 +12,7 @@ import LogoCloud1 from "@/components/blocks/logo-cloud/logo-cloud-1";
 import FAQs from "@/components/blocks/faqs";
 import FormNewsletter from "@/components/blocks/forms/newsletter";
 import AllPosts from "@/components/blocks/all-posts";
+import PricingRow from "@/components/blocks/pricing/pricing-row";
 
 type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
 
@@ -23,6 +24,7 @@ const componentMap: {
   "section-header": SectionHeader,
   "split-row": SplitRow,
   "grid-row": GridRow,
+  "pricing-row": PricingRow,
   "carousel-1": Carousel1,
   "carousel-2": Carousel2,
   "timeline-row": TimelineRow,
