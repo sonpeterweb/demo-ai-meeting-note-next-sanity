@@ -4548,6 +4548,13 @@
           "type": "string"
         },
         "optional": true
+      },
+      "orderRank": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       }
     }
   },
@@ -4827,6 +4834,13 @@
         "optional": true
       },
       "demoTips": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "orderRank": {
         "type": "objectAttribute",
         "value": {
           "type": "string"

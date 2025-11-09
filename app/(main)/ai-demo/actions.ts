@@ -1,43 +1,16 @@
 "use server";
 
 import { unstable_noStore as noStore } from "next/cache";
-import { z } from "zod";
 
+import {
+  parseTranscriptForm,
+  synthesizeFromTranscript,
+  type SummarizeFormState,
+} from "@/app/(main)/ai-demo/form-utils";
 import {
   fetchAIDemoSampleById,
   fetchAIDemoSamples,
 } from "@/sanity/lib/fetch";
-
-const FORM_SCHEMA = z.object({
-  transcript: z
-    .string()
-    .transform((value) => value.trim())
-    .refine((value) => value.length > 0, "Please provide a meeting transcript."),
-  sampleId: z
-    .string()
-    .optional()
-    .transform((value) => (value && value.length > 0 ? value : undefined)),
-});
-
-export type SummarizeFormState = {
-  status: "idle" | "success" | "error";
-  message?: string;
-  errors?: {
-    transcript?: string;
-    sampleId?: string;
-    general?: string;
-  };
-  result?: {
-    summary: string;
-    keyDecisions: string[];
-    actionItems: string[];
-  };
-};
-
-export const INITIAL_FORM_STATE: SummarizeFormState = {
-  status: "idle",
-  errors: {},
-};
 
 export async function submitMeetingTranscript(
   _prevState: SummarizeFormState,
@@ -45,13 +18,9 @@ export async function submitMeetingTranscript(
 ): Promise<SummarizeFormState> {
   noStore();
 
-  const parsedForm = FORM_SCHEMA.safeParse({
-    transcript: formData.get("transcript"),
-    sampleId: formData.get("sampleId"),
-  });
-
-  if (!parsedForm.success) {
-    const fieldErrors = parsedForm.error.flatten().fieldErrors;
+  const parsed = parseTranscriptForm(formData);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
     return {
       status: "error",
       errors: {
@@ -61,7 +30,7 @@ export async function submitMeetingTranscript(
     };
   }
 
-  const { transcript, sampleId } = parsedForm.data;
+  const { transcript, sampleId } = parsed.data;
 
   if (transcript.length < 200) {
     return {
@@ -114,41 +83,6 @@ export async function submitMeetingTranscript(
       },
     };
   }
-}
-
-function synthesizeFromTranscript(transcript: string) {
-  const sentences = transcript
-    .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
-
-  const summary = sentences.slice(0, 3).join(" ").slice(0, 600);
-
-  const actionItems = transcript
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(
-      (line) =>
-        line.startsWith("-") ||
-        line.startsWith("*") ||
-        /action item/i.test(line) ||
-        /(todo|follow up|assign)/i.test(line)
-    )
-    .map((line) => line.replace(/^[-*]\s*/, ""))
-    .slice(0, 5);
-
-  const keyDecisions = sentences
-    .filter((sentence) => /(decided|agreed|approved|will proceed)/i.test(sentence))
-    .slice(0, 3);
-
-  return {
-    summary:
-      summary.length > 0
-        ? summary
-        : transcript.slice(0, 600) || "Summary is unavailable for this transcript.",
-    keyDecisions,
-    actionItems,
-  };
 }
 
 export async function preloadAIDemoSamples() {

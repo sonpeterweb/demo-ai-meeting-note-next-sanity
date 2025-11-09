@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useFormState } from "react-dom";
 
-import { INITIAL_FORM_STATE, submitMeetingTranscript, type SummarizeFormState } from "@/app/(main)/ai-demo/actions";
+import { submitMeetingTranscript } from "@/app/(main)/ai-demo/actions";
+import {
+  INITIAL_FORM_STATE,
+  type SummarizeFormState,
+} from "@/app/(main)/ai-demo/form-utils";
 import type { AI_DEMO_SAMPLES_QUERYResult } from "@/sanity.types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
+import { orderRankField } from "@sanity/orderable-document-list";
 import { ShieldCheck } from "lucide-react";
 
 const ROLE_OPTIONS = [
@@ -118,6 +119,7 @@ const adminUser = defineType({
       group: "meta",
       readOnly: true,
     }),
+    orderRankField({ type: "admin-user" }),
   ],
   preview: {
     select: {

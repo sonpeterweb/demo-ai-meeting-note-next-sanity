@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
+import { orderRankField } from "@sanity/orderable-document-list";
 import { AudioLines } from "lucide-react";
 
 const SOURCE_OPTIONS = [
@@ -110,6 +111,7 @@ const aiDemoSample = defineType({
       group: "expected",
       description: "Internal notes for how to narrate this demo scenario.",
     }),
+    orderRankField({ type: "ai-demo-sample" }),
   ],
   preview: {
     select: {

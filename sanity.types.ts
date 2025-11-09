@@ -614,6 +614,7 @@ export type AdminUser = {
   managedCollections?: Array<"testimonials" | "pricing" | "changelog" | "ai-samples">;
   notes?: string;
   lastLogin?: string;
+  orderRank?: string;
 };
 
 export type AiDemoConfig = {
@@ -656,6 +657,7 @@ export type AiDemoSample = {
   expectedSummary?: string;
   expectedActionItems?: Array<string>;
   demoTips?: string;
+  orderRank?: string;
 };
 
 export type ChangelogEntry = {
