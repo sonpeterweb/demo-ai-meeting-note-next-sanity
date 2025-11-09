@@ -1,13 +1,11 @@
 import { type SchemaTypeDefinition } from "sanity";
 // documents
-import author from "./schemas/documents/author";
-import category from "./schemas/documents/category";
 import faq from "./schemas/documents/faq";
+import category from "./schemas/documents/category";
 import testimonial from "./schemas/documents/testimonial";
 import navigation from "./schemas/documents/navigation";
 import settings from "./schemas/documents/settings";
 import page from "./schemas/documents/page";
-import post from "./schemas/documents/post";
 import pricingTier from "./schemas/documents/pricing-tier";
 import changelogEntry from "./schemas/documents/changelog-entry";
 import aiDemoSample from "./schemas/documents/ai-demo-sample";
@@ -33,30 +31,22 @@ import splitInfoList from "./schemas/blocks/split/split-info-list";
 import splitInfo from "./schemas/blocks/split/split-info";
 import gridCard from "./schemas/blocks/grid/grid-card";
 import pricingCard from "./schemas/blocks/grid/pricing-card";
-import gridPost from "./schemas/blocks/grid/grid-post";
 import gridRow from "./schemas/blocks/grid/grid-row";
-import carousel1 from "./schemas/blocks/carousel/carousel-1";
-import carousel2 from "./schemas/blocks/carousel/carousel-2";
-import timelineRow from "./schemas/blocks/timeline/timeline-row";
-import timelinesOne from "./schemas/blocks/timeline/timelines-1";
 import cta1 from "./schemas/blocks/cta/cta-1";
 import logoCloud1 from "./schemas/blocks/logo-cloud/logo-cloud-1";
 import faqs from "./schemas/blocks/faqs";
 import newsletter from "./schemas/blocks/forms/newsletter";
-import allPosts from "./schemas/blocks/all-posts";
 import pricingRow from "./schemas/blocks/pricing/pricing-row";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
-    author,
-    category,
     faq,
+    category,
     testimonial,
     navigation,
     settings,
     page,
-    post,
     pricingTier,
     changelogEntry,
     aiDemoSample,
@@ -81,17 +71,11 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     splitInfo,
     gridCard,
     pricingCard,
-    gridPost,
     gridRow,
     pricingRow,
-    carousel1,
-    carousel2,
-    timelineRow,
-    timelinesOne,
     cta1,
     logoCloud1,
     faqs,
     newsletter,
-    allPosts,
   ],
 };

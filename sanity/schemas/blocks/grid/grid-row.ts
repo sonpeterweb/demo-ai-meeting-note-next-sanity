@@ -34,7 +34,6 @@ export default defineType({
       type: "array",
       of: [
         { type: "grid-card" },
-        { type: "grid-post" },
         { type: "pricing-card" },
       ],
       options: {
@@ -53,12 +52,11 @@ export default defineType({
   preview: {
     select: {
       title: "columns.0.title",
-      postTitle: "columns.0.post.title",
     },
-    prepare({ title, postTitle }) {
+    prepare({ title }) {
       return {
         title: "Grid Row",
-        subtitle: title || postTitle,
+        subtitle: title,
       };
     },
   },

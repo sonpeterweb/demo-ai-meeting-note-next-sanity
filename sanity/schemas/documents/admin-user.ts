@@ -15,7 +15,6 @@ const STATUS_OPTIONS = [
 
 const COLLECTION_OPTIONS = [
   { title: "Testimonials", value: "testimonials" },
-  { title: "Blog Posts", value: "posts" },
   { title: "Pricing Tiers", value: "pricing" },
   { title: "Changelog", value: "changelog" },
   { title: "AI Demo Samples", value: "ai-samples" },
