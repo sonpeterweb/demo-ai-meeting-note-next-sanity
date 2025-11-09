@@ -44,6 +44,7 @@ export default defineType({
         { type: "section-header" },
         { type: "split-row" },
         { type: "grid-row" },
+        { type: "pricing-row" },
         { type: "carousel-1" },
         { type: "carousel-2" },
         { type: "timeline-row" },
@@ -75,6 +76,11 @@ export default defineType({
               name: "grid",
               title: "Grid",
               of: ["grid-row"],
+            },
+            {
+              name: "pricing",
+              title: "Pricing",
+              of: ["pricing-row"],
             },
             {
               name: "split",
