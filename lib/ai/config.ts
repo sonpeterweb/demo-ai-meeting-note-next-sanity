@@ -1,3 +1,32 @@
+import { cache } from "react";
+import { fetchAIDemoConfig } from "@/sanity/lib/fetch";
+
+export type AIProviderConfig = {
+  provider: "openai";
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  systemPrompt?: string | null;
+  postProcessingInstructions?: string | null;
+};
+
+export const getAIDemoConfig = cache(async (): Promise<AIProviderConfig> => {
+  const envProvider = process.env.AI_DEMO_PROVIDER || "openai";
+  const envModel = process.env.AI_DEMO_MODEL || "gpt-4o-mini";
+  const envMaxTokens = Number(process.env.AI_DEMO_MAX_TOKENS ?? 1200);
+  const envTemperature = Number(process.env.AI_DEMO_TEMPERATURE ?? 0.7);
+
+  const config = await fetchAIDemoConfig();
+
+  return {
+    provider: envProvider as AIProviderConfig["provider"],
+    model: config?.model ?? envModel,
+    maxTokens: config?.maxTokens ?? envMaxTokens,
+    temperature: config?.temperature ?? envTemperature,
+    systemPrompt: config?.systemPrompt,
+    postProcessingInstructions: config?.postProcessingInstructions,
+  };
+});
 type SupportedProvider = "openai";
 
 function assertValue(value: string | undefined, key: string) {

@@ -6,7 +6,11 @@ import {
   CHANGELOG_ENTRIES_QUERY,
   CHANGELOG_ENTRY_QUERY,
 } from "@/sanity/queries/changelog/changelog-entry";
-import { AI_DEMO_SAMPLES_QUERY, AI_DEMO_SAMPLE_QUERY } from "@/sanity/queries/ai/ai-demo-sample";
+import {
+  AI_DEMO_SAMPLES_QUERY,
+  AI_DEMO_SAMPLE_QUERY,
+} from "@/sanity/queries/ai/ai-demo-sample";
+import { AI_DEMO_CONFIG_QUERY } from "@/sanity/queries/ai/ai-demo-config";
 import { groq } from "next-sanity";
 import {
   PAGE_QUERYResult,
@@ -17,6 +21,7 @@ import {
   CHANGELOG_ENTRY_QUERYResult,
   AI_DEMO_SAMPLES_QUERYResult,
   AI_DEMO_SAMPLE_QUERYResult,
+  AI_DEMO_CONFIG_QUERYResult,
 } from "@/sanity.types";
 
 export const fetchSanityPageBySlug = async ({
@@ -111,6 +116,16 @@ export async function fetchAIDemoSampleById({
   const { data } = await sanityFetch({
     query: AI_DEMO_SAMPLE_QUERY,
     params: { id },
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}
+
+export async function fetchAIDemoConfig(): Promise<AI_DEMO_CONFIG_QUERYResult | null> {
+  const { data } = await sanityFetch({
+    query: AI_DEMO_CONFIG_QUERY,
+    params: {},
     perspective: "published",
     stega: false,
   });

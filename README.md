@@ -81,6 +81,10 @@ The `/ai-demo` route showcases the meeting summarization workflow. To connect it
    ```bash
    OPENAI_API_KEY=sk-...
    OPENAI_API_BASE=https://api.openai.com/v1 # optional if using the default endpoint
+   AI_DEMO_PROVIDER=openai
+   AI_DEMO_MODEL=gpt-4o-mini
+   AI_DEMO_MAX_TOKENS=1200
+   AI_DEMO_TEMPERATURE=0.7
    ```
 3. Update the “AI Demo Config” document in Sanity Studio to tweak the system prompt, model, and temperature.
 

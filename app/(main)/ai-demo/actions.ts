@@ -11,6 +11,8 @@ import {
   fetchAIDemoSampleById,
   fetchAIDemoSamples,
 } from "@/sanity/lib/fetch";
+import { getAIDemoConfig } from "@/lib/ai/config";
+import { summarizeTranscript } from "@/lib/ai/providers";
 
 export async function submitMeetingTranscript(
   _prevState: SummarizeFormState,
@@ -67,12 +69,30 @@ export async function submitMeetingTranscript(
       };
     }
 
-    const synthesizedResult = synthesizeFromTranscript(transcript);
-    return {
-      status: "success",
-      message: "Generated a quick draft summary from the supplied transcript.",
-      result: synthesizedResult,
-    };
+    try {
+      const config = await getAIDemoConfig();
+      const providerResult = await summarizeTranscript({
+        transcript,
+        config,
+      });
+      return {
+        status: "success",
+        message: "Generated AI summary and action items using provider configuration.",
+        result: providerResult,
+      };
+    } catch (providerError) {
+      console.warn(
+        "[submitMeetingTranscript] Falling back to heuristic summary:",
+        providerError
+      );
+      const synthesizedResult = synthesizeFromTranscript(transcript);
+      return {
+        status: "success",
+        message:
+          "AI provider unavailable; generated a quick draft summary instead.",
+        result: synthesizedResult,
+      };
+    }
   } catch (error) {
     console.error("[submitMeetingTranscript]", error);
     return {
