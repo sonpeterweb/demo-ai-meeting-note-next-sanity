@@ -53,12 +53,12 @@ pnpm dev
 Import the demo dataset to get started with sample content:
 
 ```bash
-npx sanity dataset import sample-data.tar.gz production --replace
+npx sanity dataset import listenote-seed.ndjson production --replace
 ```
 
 #### 2. Publish your first document
 
-The template comes pre-defined with a schema containing `Author`, `Category`, `FAQ`, `Page`, `Post`, and `Testimonial` document types.
+The template ships with document types for `Category`, `FAQ`, `Page`, `Testimonial`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
 
 From the Studio, click "+ Create" and select the `Page` document type. Go ahead and create and publish the document.
 
@@ -71,6 +71,20 @@ The schema for the `Page` document type is defined in the `sanity/schemas/docume
 #### 4. Adding new components
 
 This template includes all components from the [Schema UI](https://schemaui.com/docs/components) library. Visit [Schema UI Docs](https://schemaui.com/docs/how-to-use) to learn how to add new components.
+
+#### 5. Configure the AI demo (optional)
+
+The `/ai-demo` route showcases the meeting summarization workflow. To connect it to a live provider:
+
+1. Create an API key with your preferred provider (the project ships with an OpenAI-ready adapter).
+2. Add the following variables to your `.env.local` file:
+   ```bash
+   OPENAI_API_KEY=sk-...
+   OPENAI_API_BASE=https://api.openai.com/v1 # optional if using the default endpoint
+   ```
+3. Update the “AI Demo Config” document in Sanity Studio to tweak the system prompt, model, and temperature.
+
+Without an API key, the UI still works with demo samples and lightweight heuristic summaries.
 
 ### Deploying your application
 

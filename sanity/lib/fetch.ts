@@ -6,6 +6,7 @@ import {
   CHANGELOG_ENTRIES_QUERY,
   CHANGELOG_ENTRY_QUERY,
 } from "@/sanity/queries/changelog/changelog-entry";
+import { AI_DEMO_SAMPLES_QUERY, AI_DEMO_SAMPLE_QUERY } from "@/sanity/queries/ai/ai-demo-sample";
 import { groq } from "next-sanity";
 import {
   PAGE_QUERYResult,
@@ -14,6 +15,8 @@ import {
   SETTINGS_QUERYResult,
   CHANGELOG_ENTRIES_QUERYResult,
   CHANGELOG_ENTRY_QUERYResult,
+  AI_DEMO_SAMPLES_QUERYResult,
+  AI_DEMO_SAMPLE_QUERYResult,
 } from "@/sanity.types";
 
 export const fetchSanityPageBySlug = async ({
@@ -85,6 +88,29 @@ export async function fetchChangelogEntryBySlug({
 export async function fetchChangelogSlugs(): Promise<ChangelogSlug[]> {
   const { data } = await sanityFetch({
     query: groq`*[_type == "changelog-entry" && defined(slug.current)]{slug}`,
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}
+
+export async function fetchAIDemoSamples(): Promise<AI_DEMO_SAMPLES_QUERYResult> {
+  const { data } = await sanityFetch({
+    query: AI_DEMO_SAMPLES_QUERY,
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}
+
+export async function fetchAIDemoSampleById({
+  id,
+}: {
+  id: string;
+}): Promise<AI_DEMO_SAMPLE_QUERYResult> {
+  const { data } = await sanityFetch({
+    query: AI_DEMO_SAMPLE_QUERY,
+    params: { id },
     perspective: "published",
     stega: false,
   });
