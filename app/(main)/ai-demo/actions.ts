@@ -14,6 +14,32 @@ import {
 import { getAIDemoConfig } from "@/lib/ai/config";
 import { summarizeTranscript } from "@/lib/ai/providers";
 
+const PROVIDER_TIMEOUT_MS = Number(process.env.AI_DEMO_TIMEOUT_MS ?? 15_000);
+
+class TimeoutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TimeoutError";
+  }
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new TimeoutError(`Timed out after ${ms}ms`));
+    }, ms);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 export async function submitMeetingTranscript(
   _prevState: SummarizeFormState,
   formData: FormData
@@ -71,16 +97,30 @@ export async function submitMeetingTranscript(
 
     try {
       const config = await getAIDemoConfig();
-      const providerResult = await summarizeTranscript({
-        transcript,
-        config,
-      });
+      const providerResult = await withTimeout(
+        summarizeTranscript({
+          transcript,
+          config,
+        }),
+        PROVIDER_TIMEOUT_MS
+      );
       return {
         status: "success",
         message: "Generated AI summary and action items using provider configuration.",
         result: providerResult,
       };
     } catch (providerError) {
+      if (providerError instanceof TimeoutError) {
+        console.warn("[submitMeetingTranscript] Provider timeout:", providerError);
+        const synthesizedResult = synthesizeFromTranscript(transcript);
+        return {
+          status: "success",
+          message:
+            "AI provider timed out; generated a quick draft summary instead. Retry for a fresh response.",
+          result: synthesizedResult,
+        };
+      }
+
       console.warn(
         "[submitMeetingTranscript] Falling back to heuristic summary:",
         providerError

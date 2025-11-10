@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
-import { useFormState } from "react-dom";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useFormState, useFormStatus } from "react-dom";
+import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
 
 import { submitMeetingTranscript } from "@/app/(main)/ai-demo/actions";
 import {
@@ -28,6 +29,8 @@ export default function AIDemoClient({ samples }: Props) {
     submitMeetingTranscript,
     INITIAL_FORM_STATE
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isTranscriptRunnable = transcript.trim().length >= 200 || Boolean(selectedSampleId);
 
   const selectedSample = useMemo(
     () => samples.find((sample) => sample._id === selectedSampleId),
@@ -47,6 +50,20 @@ export default function AIDemoClient({ samples }: Props) {
   const handleClearSample = () => {
     setSelectedSampleId(null);
   };
+
+  const handleRetry = () => {
+    const data = new FormData();
+    data.set("transcript", transcript);
+    data.set("sampleId", selectedSampleId ?? "");
+    setIsSubmitting(true);
+    formAction(data);
+  };
+
+  useEffect(() => {
+    if (state.status === "success" || state.status === "error") {
+      setIsSubmitting(false);
+    }
+  }, [state.status]);
 
   return (
     <main className="pb-16 pt-12">
@@ -134,7 +151,11 @@ export default function AIDemoClient({ samples }: Props) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form action={formAction} className="space-y-6">
+              <form
+                action={formAction}
+                className="space-y-6"
+                onSubmit={() => setIsSubmitting(true)}
+              >
                 <input type="hidden" name="sampleId" value={selectedSampleId ?? ""} />
 
                 <div className="space-y-2">
@@ -205,23 +226,27 @@ export default function AIDemoClient({ samples }: Props) {
                   </div>
                 ) : null}
 
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <Button type="submit" size="lg">
-                    Generate Insights
-                  </Button>
-
-                  {selectedSample?.demoTips ? (
-                    <p className="text-xs text-muted-foreground sm:ml-3">
-                      <strong>Demo tip:</strong> {selectedSample.demoTips}
-                    </p>
-                  ) : null}
-                </div>
+                <SubmissionFooter
+                  demoTip={selectedSample?.demoTips}
+                  isRunnable={isTranscriptRunnable}
+                />
               </form>
             </CardContent>
           </Card>
 
+          {isSubmitting ? <PendingPanel /> : null}
+
+          {state.status === "error" && state.errors?.general ? (
+            <ErrorPanel
+              message={state.errors.general}
+              onRetry={handleRetry}
+              disabled={!isTranscriptRunnable || isSubmitting}
+              isRetrying={isSubmitting}
+            />
+          ) : null}
+
           {state.status === "success" && state.result ? (
-            <ResultsPanel state={state} />
+            <ResultsPanel state={state} isLoading={isSubmitting} />
           ) : null}
         </section>
       </section>
@@ -229,16 +254,64 @@ export default function AIDemoClient({ samples }: Props) {
   );
 }
 
-function ResultsPanel({ state }: { state: SummarizeFormState }) {
+function ResultsPanel({
+  state,
+  isLoading,
+}: {
+  state: SummarizeFormState;
+  isLoading: boolean;
+}) {
   if (!state.result) {
     return null;
   }
 
   const { summary, keyDecisions, actionItems } = state.result;
+  const [hasCopied, setHasCopied] = useState(false);
+
+  const formattedSummary = useMemo(() => {
+    const sections = [
+      `Summary:\n${summary}`,
+      `\nKey decisions:\n${
+        keyDecisions.length > 0 ? keyDecisions.map((item, idx) => `${idx + 1}. ${item}`).join("\n") : "None captured."
+      }`,
+      `\nAction items:\n${
+        actionItems.length > 0 ? actionItems.map((item, idx) => `${idx + 1}. ${item}`).join("\n") : "None captured."
+      }`,
+    ];
+    return sections.join("\n");
+  }, [summary, keyDecisions, actionItems]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formattedSummary);
+      setHasCopied(true);
+      window.setTimeout(() => setHasCopied(false), 2000);
+    } catch (error) {
+      console.error("[ResultsPanel] Failed to copy:", error);
+    }
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([formattedSummary], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "listenote-meeting-summary.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const mailtoHref = useMemo(() => {
+    const subject = encodeURIComponent("Meeting summary & action items");
+    const body = encodeURIComponent(formattedSummary);
+    return `mailto:?subject=${subject}&body=${body}`;
+  }, [formattedSummary]);
 
   return (
     <section className="space-y-6">
-      <Card>
+      <Card aria-busy={isLoading}>
         <CardHeader>
           <CardTitle>Summary</CardTitle>
           {state.message ? <CardDescription>{state.message}</CardDescription> : null}
@@ -249,7 +322,7 @@ function ResultsPanel({ state }: { state: SummarizeFormState }) {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card aria-busy={isLoading}>
           <CardHeader>
             <CardTitle>Key decisions</CardTitle>
           </CardHeader>
@@ -259,7 +332,10 @@ function ResultsPanel({ state }: { state: SummarizeFormState }) {
                 No explicit decisions captured yet. Encourage the AI to call out go/no-go choices.
               </p>
             ) : (
-              <ul className="space-y-2 text-sm text-foreground">
+              <ul
+                className="space-y-2 text-sm text-foreground"
+                aria-live="polite"
+              >
                 {keyDecisions.map((decision, index) => (
                   <li key={index} className="rounded-md bg-muted/40 px-3 py-2">
                     {decision}
@@ -270,7 +346,7 @@ function ResultsPanel({ state }: { state: SummarizeFormState }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card aria-busy={isLoading}>
           <CardHeader>
             <CardTitle>Action items</CardTitle>
           </CardHeader>
@@ -280,10 +356,15 @@ function ResultsPanel({ state }: { state: SummarizeFormState }) {
                 No action items identified. Add bullet points or assign owners in the transcript for better results.
               </p>
             ) : (
-              <ul className="space-y-2 text-sm text-foreground">
+              <ul
+                className="space-y-2 text-sm text-foreground"
+                aria-live="polite"
+              >
                 {actionItems.map((item, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="mt-1 text-primary">•</span>
+                    <span className="mt-1 text-primary" aria-hidden>
+                      •
+                    </span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -293,20 +374,138 @@ function ResultsPanel({ state }: { state: SummarizeFormState }) {
         </Card>
       </div>
 
-      <Card>
-        <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
-          <span>
-            Ready to plug in your own provider? Update the environment variables in{" "}
-            <code>.env.local</code>.
-          </span>
-          <Button asChild size="sm" variant="outline">
-            <Link href="https://platform.openai.com/" target="_blank" rel="noopener">
-              Manage API keys
-            </Link>
-          </Button>
+      <Card aria-busy={isLoading}>
+        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-muted-foreground">
+            Ready to share the insights? Copy, download, or email the summary.
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={handleCopy}
+            >
+              {hasCopied ? "Copied!" : "Copy to clipboard"}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleDownload}
+            >
+              Download .txt
+            </Button>
+            <Button asChild type="button" size="sm" variant="outline">
+              <Link href={mailtoHref}>Email summary</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </section>
+  );
+}
+
+function PendingPanel() {
+  return (
+    <Card className="border-dashed border-primary/40 bg-primary/5">
+      <CardContent className="flex items-center gap-3 py-6 text-primary">
+        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+        <div className="space-y-1 text-sm">
+          <p className="font-medium">Generating insights…</p>
+          <p className="text-primary/80">
+            This can take up to 15 seconds when the AI provider is busy.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ErrorPanel({
+  message,
+  onRetry,
+  disabled,
+  isRetrying,
+}: {
+  message: string;
+  onRetry: () => void;
+  disabled: boolean;
+  isRetrying: boolean;
+}) {
+  return (
+    <Card className="border-destructive/40 bg-destructive/10">
+      <CardContent className="flex flex-col gap-3 py-6 text-destructive">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5" aria-hidden />
+          <div>
+            <p className="font-semibold">We hit a snag processing that transcript.</p>
+            <p className="text-sm text-destructive/90">{message}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={onRetry}
+            disabled={disabled}
+          >
+            {isRetrying ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                Retrying…
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4" aria-hidden />
+                Retry request
+              </>
+            )}
+          </Button>
+          <p className="text-xs text-destructive/70">
+            Still not working? Try trimming long sections or loading a demo sample.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SubmissionFooter({
+  demoTip,
+  isRunnable,
+}: {
+  demoTip?: string | null;
+  isRunnable: boolean;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <Button type="submit" size="lg" disabled={pending || !isRunnable}>
+        {pending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+            Generating…
+          </>
+        ) : (
+          "Generate Insights"
+        )}
+      </Button>
+
+      {demoTip ? (
+        <p className="text-xs text-muted-foreground sm:ml-3">
+          <strong>Demo tip:</strong> {demoTip}
+        </p>
+      ) : null}
+
+      {!isRunnable ? (
+        <p className="text-xs text-muted-foreground sm:ml-3">
+          Provide at least 200 characters or pick a sample to enable generation.
+        </p>
+      ) : null}
+    </div>
   );
 }
 
