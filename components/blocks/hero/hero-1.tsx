@@ -61,44 +61,40 @@ export default function Hero1({
       <div className="container py-20 md:py-28 lg:py-36">
         <div className="grid items-center gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)]">
           <div className="space-y-8">
-            {tagLine ? (
+            {tagLine && (
               <motion.span
                 {...fadeUp(0.05, prefersReducedMotion)}
                 className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm font-medium text-primary"
               >
                 {tagLine}
               </motion.span>
-            ) : null}
+            )}
 
-            {title ? (
+            {title && (
               <motion.h1
                 {...fadeUp(0.12, prefersReducedMotion)}
                 className="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-foreground md:text-5xl lg:text-6xl"
               >
                 {title}
               </motion.h1>
-            ) : null}
+            )}
 
-            {body ? (
+            {body && (
               <motion.div
                 {...fadeUp(0.18, prefersReducedMotion)}
                 className="max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl"
               >
                 <PortableTextRenderer value={body} />
               </motion.div>
-            ) : null}
+            )}
 
             {(primaryLink || secondaryLink) && (
               <motion.div
                 {...fadeUp(0.26, prefersReducedMotion)}
                 className="flex flex-col gap-4 sm:flex-row sm:items-center"
               >
-                {primaryLink ? (
-                  <HeroLinkButton link={primaryLink} priority />
-                ) : null}
-                {secondaryLink ? (
-                  <HeroLinkButton link={secondaryLink} />
-                ) : null}
+                {primaryLink && <HeroLinkButton link={primaryLink} priority />}
+                {secondaryLink && <HeroLinkButton link={secondaryLink} />}
               </motion.div>
             )}
 

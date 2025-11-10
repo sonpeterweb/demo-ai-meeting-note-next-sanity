@@ -32,24 +32,24 @@ export default function PricingRow({
     <SectionContainer color={color} padding={padding}>
       <div className="mx-auto flex max-w-6xl flex-col gap-12">
         <header className="space-y-4 text-center md:space-y-5">
-          {eyebrow ? (
+          {eyebrow && (
             <Badge
               variant="secondary"
               className="rounded-full border border-transparent bg-primary/10 px-4 py-1 text-primary"
             >
               {eyebrow}
             </Badge>
-          ) : null}
-          {title ? (
+          )}
+          {title && (
             <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl lg:text-5xl">
               {title}
             </h2>
-          ) : null}
-          {description ? (
+          )}
+          {description && (
             <p className="mx-auto max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground md:text-lg">
               {description}
             </p>
-          ) : null}
+          )}
         </header>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -62,11 +62,11 @@ export default function PricingRow({
           ))}
         </div>
 
-        {footnote ? (
+        {footnote && (
           <p className="mx-auto max-w-2xl text-center text-sm text-muted-foreground">
             {footnote}
           </p>
-        ) : null}
+        )}
       </div>
     </SectionContainer>
   );
@@ -110,23 +110,23 @@ function PricingTierCard({
           <h3 className="text-lg font-semibold text-foreground">
             {tier?.title}
           </h3>
-          {tier?.badge ? (
+          {tier?.badge && (
             <Badge variant="outline" className="border-primary/40 text-primary">
               {tier.badge}
             </Badge>
-          ) : null}
-          {tier?.status && tier.status !== "active" ? (
+          )}
+          {tier?.status && tier.status !== "active" && (
             <Badge
               variant="secondary"
               className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-300"
             >
               {statusLabel(tier.status)}
             </Badge>
-          ) : null}
+          )}
         </div>
-        {tier?.subtitle ? (
+        {tier?.subtitle && (
           <p className="text-sm text-muted-foreground">{tier.subtitle}</p>
-        ) : null}
+        )}
       </div>
 
       <div>
@@ -136,11 +136,11 @@ function PricingTierCard({
             {price === undefined ? "" : `/${billingCycleLabel(billingCycle)}`}
           </span>
         </p>
-        {tier?.description ? (
+        {tier?.description && (
           <p className="mt-3 text-sm text-muted-foreground">
             {tier.description}
           </p>
-        ) : null}
+        )}
       </div>
 
       {tier?.features && tier.features.length > 0 ? (

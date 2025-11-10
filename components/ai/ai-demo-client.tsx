@@ -97,16 +97,16 @@ export default function AIDemoClient({ samples }: Props) {
                       disabled={isPrefilling}
                     >
                       <p className="font-medium text-foreground">{sample.title}</p>
-                      {sample.meetingContext ? (
+                      {sample.meetingContext && (
                         <p className="mt-1 text-sm text-muted-foreground">
                           {sample.meetingContext}
                         </p>
-                      ) : null}
-                      {sample.persona ? (
+                      )}
+                      {sample.persona && (
                         <p className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">
                           Persona: {sample.persona}
                         </p>
-                      ) : null}
+                      )}
                     </button>
                   ))}
                 </div>
@@ -201,9 +201,9 @@ export default function AIDemoClient({ samples }: Props) {
                       </Button>
                     </div>
                   </div>
-                  {state.errors?.transcript ? (
+                  {state.errors?.transcript && (
                     <p className="text-sm text-destructive">{state.errors.transcript}</p>
-                  ) : null}
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -220,11 +220,11 @@ export default function AIDemoClient({ samples }: Props) {
                   </p>
                 </div>
 
-                {state.errors?.general ? (
+                {state.errors?.general && (
                   <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     {state.errors.general}
                   </div>
-                ) : null}
+                )}
 
                 <SubmissionFooter
                   demoTip={selectedSample?.demoTips}
@@ -234,20 +234,20 @@ export default function AIDemoClient({ samples }: Props) {
             </CardContent>
           </Card>
 
-          {isSubmitting ? <PendingPanel /> : null}
+          {isSubmitting && <PendingPanel />}
 
-          {state.status === "error" && state.errors?.general ? (
+          {state.status === "error" && state.errors?.general && (
             <ErrorPanel
               message={state.errors.general}
               onRetry={handleRetry}
               disabled={!isTranscriptRunnable || isSubmitting}
               isRetrying={isSubmitting}
             />
-          ) : null}
+          )}
 
-          {state.status === "success" && state.result ? (
+          {state.status === "success" && state.result && (
             <ResultsPanel state={state} isLoading={isSubmitting} />
-          ) : null}
+          )}
         </section>
       </section>
     </main>
@@ -314,7 +314,7 @@ function ResultsPanel({
       <Card aria-busy={isLoading}>
         <CardHeader>
           <CardTitle>Summary</CardTitle>
-          {state.message ? <CardDescription>{state.message}</CardDescription> : null}
+          {state.message && <CardDescription>{state.message}</CardDescription>}
         </CardHeader>
         <CardContent>
           <p className="text-sm leading-relaxed text-foreground">{summary}</p>
@@ -494,17 +494,17 @@ function SubmissionFooter({
         )}
       </Button>
 
-      {demoTip ? (
+      {demoTip && (
         <p className="text-xs text-muted-foreground sm:ml-3">
           <strong>Demo tip:</strong> {demoTip}
         </p>
-      ) : null}
+      )}
 
-      {!isRunnable ? (
+      {!isRunnable && (
         <p className="text-xs text-muted-foreground sm:ml-3">
           Provide at least 200 characters or pick a sample to enable generation.
         </p>
-      ) : null}
+      )}
     </div>
   );
 }
