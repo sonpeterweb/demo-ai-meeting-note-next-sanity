@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
       jsx: "automatic",
       jsxImportSource: "react",
     },
+    envDir: path.resolve(__dirname, "test-env"),
     test: {
       environment: "jsdom",
       globals: true,
@@ -32,7 +33,12 @@ function hydrateProcessEnvFromFile(filename: string) {
     return;
   }
 
-  const raw = fs.readFileSync(envPath, "utf8");
+  let raw: string;
+  try {
+    raw = fs.readFileSync(envPath, "utf8");
+  } catch (error) {
+    return;
+  }
   const lines = raw.split(/\r?\n/);
 
   for (const line of lines) {
