@@ -5,7 +5,6 @@ import SectionContainer from "@/components/ui/section-container";
 import Breadcrumbs from "@/components/ui/breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { fetchChangelogEntries } from "@/sanity/lib/fetch";
 

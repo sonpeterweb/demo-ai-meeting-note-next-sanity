@@ -246,7 +246,11 @@ export default function AIDemoClient({ samples }: Props) {
           )}
 
           {state.status === "success" && state.result && (
-            <ResultsPanel state={state} isLoading={isSubmitting} />
+            <ResultsPanel
+              result={state.result}
+              message={state.message}
+              isLoading={isSubmitting}
+            />
           )}
         </section>
       </section>
@@ -254,18 +258,18 @@ export default function AIDemoClient({ samples }: Props) {
   );
 }
 
+type SummarizeResult = NonNullable<SummarizeFormState["result"]>;
+
 function ResultsPanel({
-  state,
+  result,
+  message,
   isLoading,
 }: {
-  state: SummarizeFormState;
+  result: SummarizeResult;
+  message?: string;
   isLoading: boolean;
 }) {
-  if (!state.result) {
-    return null;
-  }
-
-  const { summary, keyDecisions, actionItems } = state.result;
+  const { summary, keyDecisions, actionItems } = result;
   const [hasCopied, setHasCopied] = useState(false);
 
   const formattedSummary = useMemo(() => {
@@ -314,7 +318,7 @@ function ResultsPanel({
       <Card aria-busy={isLoading}>
         <CardHeader>
           <CardTitle>Summary</CardTitle>
-          {state.message && <CardDescription>{state.message}</CardDescription>}
+          {message && <CardDescription>{message}</CardDescription>}
         </CardHeader>
         <CardContent>
           <p className="text-sm leading-relaxed text-foreground">{summary}</p>

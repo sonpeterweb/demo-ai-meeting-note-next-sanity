@@ -1,6 +1,7 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { useDraftModeEnvironment } from "next-sanity/hooks";
 
 export function DisableDraftMode() {
@@ -13,9 +14,9 @@ export function DisableDraftMode() {
 
   return (
     <Button asChild>
-      <a href="/api/draft-mode/disable" className="fixed bottom-4 right-4">
+      <Link href="/api/draft-mode/disable" className="fixed bottom-4 right-4">
         Disable Draft Mode
-      </a>
+      </Link>
     </Button>
   );
 }

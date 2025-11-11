@@ -215,7 +215,7 @@ function TranscriptCard({
       className="relative z-10 mt-4 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-5 text-sm leading-relaxed text-primary-foreground shadow-lg backdrop-blur-sm dark:bg-sky-500/10"
     >
       <p className="font-medium text-primary">
-        “Let's finalize the onboarding milestones, confirm QA coverage for the
+        “Let&apos;s finalize the onboarding milestones, confirm QA coverage for the
         mobile release, and assign follow-ups for the AI insights launch.”
       </p>
       <p className="mt-3 text-xs text-primary/70">

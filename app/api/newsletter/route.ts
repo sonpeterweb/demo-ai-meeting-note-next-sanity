@@ -14,7 +14,7 @@ export const POST = async (request: Request) => {
     });
 
     return Response.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     return Response.json(
       { error: "Error subscribing to updates" },
       { status: 400 }
