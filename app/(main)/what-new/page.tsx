@@ -69,30 +69,30 @@ export default async function WhatsNewPage() {
               <header className="flex flex-col gap-3 border-b border-border/60 pb-6 md:flex-row md:items-start md:justify-between">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    {entry.releaseDate ? (
+                    {entry.releaseDate && (
                       <time dateTime={entry.releaseDate}>
                         {formatDate(entry.releaseDate)}
                       </time>
-                    ) : null}
-                    {entry.impactLevel ? (
+                    )}
+                    {entry.impactLevel && (
                       <Badge variant="outline">
                         {impactLabels[entry.impactLevel] ?? entry.impactLevel}
                       </Badge>
-                    ) : null}
-                    {entry.audience ? (
+                    )}
+                    {entry.audience && (
                       <Badge className="bg-slate-900 text-slate-100 dark:bg-slate-200 dark:text-slate-900">
                         {audienceLabels[entry.audience] ?? entry.audience}
                       </Badge>
-                    ) : null}
+                    )}
                   </div>
                   <h2 className="text-balance text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                     {entry.title}
                   </h2>
-                  {entry.summary ? (
+                  {entry.summary && (
                     <p className="text-base text-muted-foreground md:text-lg">
                       {entry.summary}
                     </p>
-                  ) : null}
+                  )}
                 </div>
 
                 <div className="flex flex-wrap gap-3">
@@ -104,7 +104,7 @@ export default async function WhatsNewPage() {
                 </div>
               </header>
 
-              {entry.highlights && entry.highlights.length > 0 ? (
+              {entry.highlights && entry.highlights.length > 0 && (
                 <ul className="mt-6 space-y-3 text-sm text-muted-foreground md:text-base">
                   {entry.highlights.map((highlight, index) => (
                     <li key={index} className="flex items-start gap-2">
@@ -115,13 +115,13 @@ export default async function WhatsNewPage() {
                     </li>
                   ))}
                 </ul>
-              ) : null}
+              )}
 
-              {entry.body && entry.body.length > 0 ? (
+              {entry.body && entry.body.length > 0 && (
                 <div className="prose prose-slate mt-8 max-w-none dark:prose-invert">
                   <PortableTextRenderer value={entry.body} />
                 </div>
-              ) : null}
+              )}
 
               <footer className="mt-8 flex flex-wrap items-center gap-4">
                 {entry.relatedPages?.map((page) => {
@@ -134,18 +134,18 @@ export default async function WhatsNewPage() {
                     </Button>
                   );
                 })}
-                {entry.slug?.current ? (
+                {entry.slug?.current && (
                   <Button variant="ghost" asChild>
                     <Link href={`/what-new/${entry.slug.current}`}>
                       View details
                     </Link>
                   </Button>
-                ) : null}
+                )}
               </footer>
             </article>
           ))}
 
-          {entries.length === 0 ? (
+          {entries.length === 0 && (
             <div className="rounded-xl border border-dashed border-border/60 bg-muted/40 p-10 text-center">
               <h3 className="text-xl font-semibold text-muted-foreground">
                 No updates yet
@@ -154,7 +154,7 @@ export default async function WhatsNewPage() {
                 Publish changelog entries in Sanity Studio to see them here.
               </p>
             </div>
-          ) : null}
+          )}
         </div>
       </section>
     </div>

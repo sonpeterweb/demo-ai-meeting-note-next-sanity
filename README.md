@@ -12,6 +12,17 @@ This starter is a part of [Schema UI](https://schemaui.com) project, a comprehen
 
 ## Getting Started
 
+## Listenote Demo Overview
+
+This starter has been reshaped into **Listenote**, an AI meeting-notes SaaS demo that showcases a complete marketing + product-experience stack:
+
+- `/**` (Marketing homepage) – Hero animations narrate “meeting → notes → actions”, while pricing tiers, CTAs, and messaging are all editable via Sanity (`hero-1`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
+- `/what-new` (Changelog) – Lists `changelog-entry` documents from Sanity with release date, impact badge, audience targeting, highlights, and portable-text body copy. Empty states are handled when no entries exist.
+  - `/what-new/[slug]` (Changelog detail) – Deep links into the same content with consistent badges, breadcrumbs, and share-ready layout.
+- `/ai-demo` (Interactive AI workflow) – A guided experience backed by `ai-demo-sample` and `ai-demo-config` documents. Users can load sample transcripts, run a server action (`submitMeetingTranscript`) that calls an AI provider (OpenAI adapter included), and review structured summaries with copy/email/export affordances. Heuristic fallbacks keep the demo stable if credentials are missing.
+
+Supporting documents (`pricing-tier`, `changelog-entry`, `ai-demo-sample`, `ai-demo-config`, `admin-user`) are registered in Sanity Studio, replacing the original blog/carousel examples with content your portfolio audience can relate to immediately.
+
 ### Installing the template
 
 #### 1. Initialize template with Sanity CLI
@@ -53,12 +64,12 @@ pnpm dev
 Import the demo dataset to get started with sample content:
 
 ```bash
-npx sanity dataset import sample-data.tar.gz production --replace
+npx sanity dataset import listenote-seed.ndjson production --replace
 ```
 
 #### 2. Publish your first document
 
-The template comes pre-defined with a schema containing `Author`, `Category`, `FAQ`, `Page`, `Post`, and `Testimonial` document types.
+The template ships with document types for `Category`, `FAQ`, `Page`, `Testimonial`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
 
 From the Studio, click "+ Create" and select the `Page` document type. Go ahead and create and publish the document.
 
@@ -71,6 +82,24 @@ The schema for the `Page` document type is defined in the `sanity/schemas/docume
 #### 4. Adding new components
 
 This template includes all components from the [Schema UI](https://schemaui.com/docs/components) library. Visit [Schema UI Docs](https://schemaui.com/docs/how-to-use) to learn how to add new components.
+
+#### 5. Configure the AI demo (optional)
+
+The `/ai-demo` route showcases the meeting summarization workflow. To connect it to a live provider:
+
+1. Create an API key with your preferred provider (the project ships with an OpenAI-ready adapter).
+2. Add the following variables to your `.env.local` file:
+   ```bash
+   OPENAI_API_KEY=sk-...
+   OPENAI_API_BASE=https://api.openai.com/v1 # optional if using the default endpoint
+   AI_DEMO_PROVIDER=openai
+   AI_DEMO_MODEL=gpt-4o-mini
+   AI_DEMO_MAX_TOKENS=1200
+   AI_DEMO_TEMPERATURE=0.7
+   ```
+3. Update the “AI Demo Config” document in Sanity Studio to tweak the system prompt, model, and temperature.
+
+Without an API key, the UI still works with demo samples and lightweight heuristic summaries.
 
 ### Deploying your application
 

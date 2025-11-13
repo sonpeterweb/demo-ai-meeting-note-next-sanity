@@ -76,27 +76,27 @@ export default async function ChangelogEntryPage(props: {
             variant="secondary"
             className="rounded-full border border-transparent bg-primary/10 px-4 py-1 text-primary"
           >
-            {entry.releaseDate ? formatDate(entry.releaseDate) : null}
+            {entry.releaseDate && formatDate(entry.releaseDate)}
           </Badge>
           <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
             {entry.title}
           </h1>
-          {entry.summary ? (
+          {entry.summary && (
             <p className="text-lg text-muted-foreground">
               {entry.summary}
             </p>
-          ) : null}
+          )}
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
-            {entry.impactLevel ? (
+            {entry.impactLevel && (
               <Badge variant="outline">
                 {impactLabels[entry.impactLevel] ?? entry.impactLevel}
               </Badge>
-            ) : null}
-            {entry.audience ? (
+            )}
+            {entry.audience && (
               <Badge className="bg-slate-900 text-slate-100 dark:bg-slate-200 dark:text-slate-900">
                 {audienceLabels[entry.audience] ?? entry.audience}
               </Badge>
-            ) : null}
+            )}
           </div>
         </div>
       </SectionContainer>
@@ -105,7 +105,7 @@ export default async function ChangelogEntryPage(props: {
         <div className="mx-auto flex max-w-3xl flex-col gap-8">
           <Breadcrumbs links={links} />
 
-          {entry.highlights && entry.highlights.length > 0 ? (
+          {entry.highlights && entry.highlights.length > 0 && (
             <div className="rounded-2xl border border-border/60 bg-background/80 p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-foreground">
                 Highlights
@@ -119,13 +119,13 @@ export default async function ChangelogEntryPage(props: {
                 ))}
               </ul>
             </div>
-          ) : null}
+          )}
 
-          {entry.body && entry.body.length > 0 ? (
+          {entry.body && entry.body.length > 0 && (
             <div className="prose prose-slate max-w-none dark:prose-invert">
               <PortableTextRenderer value={entry.body} />
             </div>
-          ) : null}
+          )}
 
           <footer className="flex flex-wrap items-center gap-4">
             {entry.relatedPages?.map((page) => (

@@ -45,14 +45,10 @@ export default defineType({
         { type: "split-row" },
         { type: "grid-row" },
         { type: "pricing-row" },
-        { type: "carousel-1" },
-        { type: "carousel-2" },
-        { type: "timeline-row" },
         { type: "cta-1" },
         { type: "logo-cloud-1" },
         { type: "faqs" },
         { type: "form-newsletter" },
-        { type: "all-posts" },
       ],
       options: {
         insertMenu: {
@@ -88,16 +84,6 @@ export default defineType({
               of: ["split-row"],
             },
             {
-              name: "carousel",
-              title: "Carousel",
-              of: ["carousel-1", "carousel-2"],
-            },
-            {
-              name: "timeline",
-              title: "Timeline",
-              of: ["timeline-row"],
-            },
-            {
               name: "cta",
               title: "CTA",
               of: ["cta-1"],
@@ -111,11 +97,6 @@ export default defineType({
               name: "forms",
               title: "Forms",
               of: ["form-newsletter"],
-            },
-            {
-              name: "all-posts",
-              title: "All Posts",
-              of: ["all-posts"],
             },
           ],
           views: [

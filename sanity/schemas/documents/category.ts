@@ -1,19 +1,34 @@
 import { defineField, defineType } from "sanity";
-import { orderRankField } from "@sanity/orderable-document-list";
-import { BookA } from "lucide-react";
+import { Tag } from "lucide-react";
 
 export default defineType({
   name: "category",
   title: "Category",
   type: "document",
-  icon: BookA,
+  icon: Tag,
   fields: [
     defineField({
       name: "title",
-      title: "Title",
       type: "string",
-      validation: (Rule) => Rule.required(),
+      validation: (rule) => rule.required().error("Category title is required"),
     }),
-    orderRankField({ type: "category" }),
+    defineField({
+      name: "description",
+      type: "text",
+      rows: 2,
+    }),
   ],
+  preview: {
+    select: {
+      title: "title",
+      description: "description",
+    },
+    prepare({ title, description }) {
+      return {
+        title: title || "Category",
+        subtitle: description,
+      };
+    },
+  },
 });
+

@@ -3,25 +3,25 @@ import { PAGE_QUERY, PAGES_SLUGS_QUERY } from "@/sanity/queries/page";
 import { NAVIGATION_QUERY } from "@/sanity/queries/navigation";
 import { SETTINGS_QUERY } from "@/sanity/queries/settings";
 import {
-  POST_QUERY,
-  POSTS_QUERY,
-  POSTS_SLUGS_QUERY,
-} from "@/sanity/queries/post";
-import {
   CHANGELOG_ENTRIES_QUERY,
   CHANGELOG_ENTRY_QUERY,
 } from "@/sanity/queries/changelog/changelog-entry";
+import {
+  AI_DEMO_SAMPLES_QUERY,
+  AI_DEMO_SAMPLE_QUERY,
+} from "@/sanity/queries/ai/ai-demo-sample";
+import { AI_DEMO_CONFIG_QUERY } from "@/sanity/queries/ai/ai-demo-config";
 import { groq } from "next-sanity";
 import {
   PAGE_QUERYResult,
   PAGES_SLUGS_QUERYResult,
-  POST_QUERYResult,
-  POSTS_QUERYResult,
-  POSTS_SLUGS_QUERYResult,
   NAVIGATION_QUERYResult,
   SETTINGS_QUERYResult,
   CHANGELOG_ENTRIES_QUERYResult,
   CHANGELOG_ENTRY_QUERYResult,
+  AI_DEMO_SAMPLES_QUERYResult,
+  AI_DEMO_SAMPLE_QUERYResult,
+  AI_DEMO_CONFIG_QUERYResult,
 } from "@/sanity.types";
 
 export const fetchSanityPageBySlug = async ({
@@ -41,38 +41,6 @@ export const fetchSanityPagesStaticParams =
   async (): Promise<PAGES_SLUGS_QUERYResult> => {
     const { data } = await sanityFetch({
       query: PAGES_SLUGS_QUERY,
-      perspective: "published",
-      stega: false,
-    });
-
-    return data;
-  };
-
-export const fetchSanityPosts = async (): Promise<POSTS_QUERYResult> => {
-  const { data } = await sanityFetch({
-    query: POSTS_QUERY,
-  });
-
-  return data;
-};
-
-export const fetchSanityPostBySlug = async ({
-  slug,
-}: {
-  slug: string;
-}): Promise<POST_QUERYResult> => {
-  const { data } = await sanityFetch({
-    query: POST_QUERY,
-    params: { slug },
-  });
-
-  return data;
-};
-
-export const fetchSanityPostsStaticParams =
-  async (): Promise<POSTS_SLUGS_QUERYResult> => {
-    const { data } = await sanityFetch({
-      query: POSTS_SLUGS_QUERY,
       perspective: "published",
       stega: false,
     });
@@ -125,6 +93,39 @@ export async function fetchChangelogEntryBySlug({
 export async function fetchChangelogSlugs(): Promise<ChangelogSlug[]> {
   const { data } = await sanityFetch({
     query: groq`*[_type == "changelog-entry" && defined(slug.current)]{slug}`,
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}
+
+export async function fetchAIDemoSamples(): Promise<AI_DEMO_SAMPLES_QUERYResult> {
+  const { data } = await sanityFetch({
+    query: AI_DEMO_SAMPLES_QUERY,
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}
+
+export async function fetchAIDemoSampleById({
+  id,
+}: {
+  id: string;
+}): Promise<AI_DEMO_SAMPLE_QUERYResult> {
+  const { data } = await sanityFetch({
+    query: AI_DEMO_SAMPLE_QUERY,
+    params: { id },
+    perspective: "published",
+    stega: false,
+  });
+  return data;
+}
+
+export async function fetchAIDemoConfig(): Promise<AI_DEMO_CONFIG_QUERYResult | null> {
+  const { data } = await sanityFetch({
+    query: AI_DEMO_CONFIG_QUERY,
+    params: {},
     perspective: "published",
     stega: false,
   });
