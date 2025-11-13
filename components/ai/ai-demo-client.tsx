@@ -266,7 +266,7 @@ function ResultsPanel({
   isLoading,
 }: {
   result: SummarizeResult;
-  message?: string;
+  message?: SummarizeFormState["message"];
   isLoading: boolean;
 }) {
   const { summary, keyDecisions, actionItems } = result;

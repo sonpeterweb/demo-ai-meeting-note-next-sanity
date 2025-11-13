@@ -72,11 +72,9 @@ export default function FormNewsletter({
         } else {
           toast.error(result.error);
         }
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Something went wrong";
-        toast.error(message);
-        throw new Error(message);
+      } catch (error: any) {
+        toast.error(error.message);
+        throw new Error(error.message);
       }
     },
     [form, successMessage]
