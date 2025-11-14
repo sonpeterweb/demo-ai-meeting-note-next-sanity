@@ -17,9 +17,9 @@ import { PAGE_QUERYResult } from "@/sanity.types";
 import { cn } from "@/lib/utils";
 import { urlFor } from "@/sanity/lib/image";
 
-type Hero1Props = Extract<
+type HeroProps = Extract<
   NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
-  { _type: "hero-1" }
+  { _type: "hero" }
 >;
 
 const heroEase = cubicBezier(0.21, 0.47, 0.32, 0.99);
@@ -42,13 +42,13 @@ const insightCards = [
   },
 ];
 
-export default function Hero1({
+export default function Hero({
   tagLine,
   title,
   body,
   image,
   links,
-}: Hero1Props) {
+}: HeroProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const primaryLink = links?.[0];
   const secondaryLink = links?.[1];
@@ -144,7 +144,7 @@ function HeroLinkButton({
   link,
   priority = false,
 }: {
-  link: NonNullable<Hero1Props["links"]>[number];
+  link: NonNullable<HeroProps["links"]>[number];
   priority?: boolean;
 }) {
   const variant = stegaClean(link?.buttonVariant) ?? "default";
@@ -215,8 +215,8 @@ function TranscriptCard({
       className="relative z-10 mt-4 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-5 text-sm leading-relaxed text-primary-foreground shadow-lg backdrop-blur-sm dark:bg-sky-500/10"
     >
       <p className="font-medium text-primary">
-        “Let’s finalize the onboarding milestones, confirm QA coverage for the
-        mobile release, and assign follow-ups for the AI insights launch.”
+        &ldquo;Let&apos;s finalize the onboarding milestones, confirm QA coverage for the
+        mobile release, and assign follow-ups for the AI insights launch.&rdquo;
       </p>
       <p className="mt-3 text-xs text-primary/70">
         Transcript captured automatically · Confidence 98%
@@ -336,3 +336,4 @@ function usePrefersReducedMotion() {
 
   return prefersReducedMotion;
 }
+

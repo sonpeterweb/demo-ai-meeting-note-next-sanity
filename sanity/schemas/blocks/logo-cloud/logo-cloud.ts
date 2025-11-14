@@ -2,7 +2,7 @@ import { defineType, defineField } from "sanity";
 import { Images } from "lucide-react";
 
 export default defineType({
-  name: "logo-cloud-1",
+  name: "logo-cloud",
   type: "object",
   icon: Images,
   fields: [
@@ -51,3 +51,4 @@ export default defineType({
     },
   },
 });
+

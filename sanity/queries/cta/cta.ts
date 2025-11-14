@@ -1,23 +1,24 @@
 import { groq } from "next-sanity";
 import { linkQuery } from "../shared/link";
-import { imageQuery } from "../shared/image";
 import { bodyQuery } from "../shared/body";
 
 // @sanity-typegen-ignore
-export const hero1Query = groq`
-  _type == "hero-1" => {
+export const ctaQuery = groq`
+  _type == "cta" => {
     _type,
     _key,
+    padding,
+    colorVariant,
+    sectionWidth,
+    stackAlign,
     tagLine,
     title,
     body[]{
       ${bodyQuery}
-    },
-    image{
-      ${imageQuery}
     },
     links[]{
       ${linkQuery}
     },
   }
 `;
+

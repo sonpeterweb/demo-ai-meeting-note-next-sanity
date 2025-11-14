@@ -3,8 +3,8 @@ import { Captions } from "lucide-react";
 import { STACK_ALIGN, SECTION_WIDTH } from "../shared/layout-variants";
 
 export default defineType({
-  name: "cta-1",
-  title: "CTA 1",
+  name: "cta",
+  title: "CTA",
   type: "object",
   icon: Captions,
   fields: [
@@ -63,9 +63,10 @@ export default defineType({
     },
     prepare({ title }) {
       return {
-        title: "CTA 1",
+        title: "CTA",
         subtitle: title,
       };
     },
   },
 });
+

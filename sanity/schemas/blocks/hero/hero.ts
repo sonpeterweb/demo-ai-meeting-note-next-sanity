@@ -2,8 +2,8 @@ import { defineField, defineType } from "sanity";
 import { LayoutTemplate } from "lucide-react";
 
 export default defineType({
-  name: "hero-1",
-  title: "Hero 1",
+  name: "hero",
+  title: "Hero",
   type: "object",
   icon: LayoutTemplate,
   fields: [
@@ -44,9 +44,10 @@ export default defineType({
     },
     prepare({ title }) {
       return {
-        title: "Hero 1",
+        title: "Hero",
         subtitle: title,
       };
     },
   },
 });
+

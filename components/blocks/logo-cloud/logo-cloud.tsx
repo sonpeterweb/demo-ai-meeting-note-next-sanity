@@ -7,17 +7,17 @@ import { Fragment } from "react";
 import { motion } from "motion/react";
 import { PAGE_QUERYResult } from "@/sanity.types";
 
-type LogoCloud1Props = Extract<
+type LogoCloudProps = Extract<
   NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
-  { _type: "logo-cloud-1" }
+  { _type: "logo-cloud" }
 >;
 
-export default function LogoCloud1({
+export default function LogoCloud({
   padding,
   colorVariant,
   title,
   images,
-}: LogoCloud1Props) {
+}: LogoCloudProps) {
   const color = stegaClean(colorVariant);
 
   return (
@@ -73,3 +73,4 @@ export default function LogoCloud1({
     </SectionContainer>
   );
 }
+
