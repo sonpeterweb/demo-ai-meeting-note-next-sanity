@@ -39,14 +39,13 @@ export default defineType({
       type: "array",
       group: "content",
       of: [
-        { type: "hero-1" },
-        { type: "hero-2" },
+        { type: "hero" },
         { type: "section-header" },
         { type: "split-row" },
         { type: "grid-row" },
         { type: "pricing-row" },
-        { type: "cta-1" },
-        { type: "logo-cloud-1" },
+        { type: "cta" },
+        { type: "logo-cloud" },
         { type: "faqs" },
         { type: "form-newsletter" },
       ],
@@ -56,12 +55,12 @@ export default defineType({
             {
               name: "hero",
               title: "Hero",
-              of: ["hero-1", "hero-2"],
+              of: ["hero"],
             },
             {
               name: "logo-cloud",
               title: "Logo Cloud",
-              of: ["logo-cloud-1"],
+              of: ["logo-cloud"],
             },
             {
               name: "section-header",
@@ -86,7 +85,7 @@ export default defineType({
             {
               name: "cta",
               title: "CTA",
-              of: ["cta-1"],
+              of: ["cta"],
             },
             {
               name: "faqs",

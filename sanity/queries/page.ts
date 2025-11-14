@@ -1,11 +1,10 @@
 import { groq } from "next-sanity";
-import { hero1Query } from "./hero/hero-1";
-import { hero2Query } from "./hero/hero-2";
+import { heroQuery } from "./hero/hero";
 import { sectionHeaderQuery } from "./section-header";
 import { splitRowQuery } from "./split/split-row";
 import { gridRowQuery } from "./grid/grid-row";
-import { cta1Query } from "./cta/cta-1";
-import { logoCloud1Query } from "./logo-cloud/logo-cloud-1";
+import { ctaQuery } from "./cta/cta";
+import { logoCloudQuery } from "./logo-cloud/logo-cloud";
 import { faqsQuery } from "./faqs";
 import { formNewsletterQuery } from "./forms/newsletter";
 import { pricingRowQuery } from "./pricing/pricing-row";
@@ -13,14 +12,13 @@ import { pricingRowQuery } from "./pricing/pricing-row";
 export const PAGE_QUERY = groq`
   *[_type == "page" && slug.current == $slug][0]{
     blocks[]{
-      ${hero1Query},
-      ${hero2Query},
+      ${heroQuery},
       ${sectionHeaderQuery},
       ${splitRowQuery},
       ${gridRowQuery},
       ${pricingRowQuery},
-      ${cta1Query},
-      ${logoCloud1Query},
+      ${ctaQuery},
+      ${logoCloudQuery},
       ${faqsQuery},
       ${formNewsletterQuery},
     },

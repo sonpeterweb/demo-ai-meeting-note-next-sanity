@@ -6,12 +6,12 @@ import Link from "next/link";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { PAGE_QUERYResult } from "@/sanity.types";
 
-type Cta1Props = Extract<
+type CtaProps = Extract<
   NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
-  { _type: "cta-1" }
+  { _type: "cta" }
 >;
 
-export default function Cta1({
+export default function Cta({
   padding,
   colorVariant,
   sectionWidth = "default",
@@ -20,7 +20,7 @@ export default function Cta1({
   title,
   body,
   links,
-}: Cta1Props) {
+}: CtaProps) {
   const isNarrow = stegaClean(sectionWidth) === "narrow";
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
@@ -74,3 +74,4 @@ export default function Cta1({
     </SectionContainer>
   );
 }
+

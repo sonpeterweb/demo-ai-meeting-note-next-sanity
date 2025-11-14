@@ -2,14 +2,14 @@ import React from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import Hero1 from "./hero-1";
+import Hero from "./hero";
 
-type Hero1Props = Parameters<typeof Hero1>[0];
+type HeroProps = Parameters<typeof Hero>[0];
 
-describe("Hero1", () => {
-  const baseProps: Hero1Props = {
-    _type: "hero-1" as const,
-    _key: "hero-1",
+describe("Hero", () => {
+  const baseProps: HeroProps = {
+    _type: "hero" as const,
+    _key: "hero",
     tagLine: "Product teams ship faster",
     title: "Turn every meeting into momentum",
     body: [
@@ -52,7 +52,7 @@ describe("Hero1", () => {
   };
 
   it("renders headline, supporting copy, and CTAs", () => {
-    const { getByRole } = render(<Hero1 {...baseProps} />);
+    const { getByRole } = render(<Hero {...baseProps} />);
 
     expect(
       getByRole("heading", {
@@ -71,7 +71,7 @@ describe("Hero1", () => {
   });
 
   it("renders animation wrapper for hero visualization", () => {
-    render(<Hero1 {...baseProps} />);
+    render(<Hero {...baseProps} />);
 
     const animationWrapper = screen.getByTestId("listenote-hero-animation");
     expect(animationWrapper).toBeInTheDocument();

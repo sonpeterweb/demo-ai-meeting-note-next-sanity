@@ -16,7 +16,7 @@ This starter is a part of [Schema UI](https://schemaui.com) project, a comprehen
 
 This starter has been reshaped into **Listenote**, an AI meeting-notes SaaS demo that showcases a complete marketing + product-experience stack:
 
-- `/**` (Marketing homepage) – Hero animations narrate “meeting → notes → actions”, while pricing tiers, CTAs, and messaging are all editable via Sanity (`hero-1`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
+- `/**` (Marketing homepage) – Hero animations narrate "meeting → notes → actions", while pricing tiers, CTAs, and messaging are all editable via Sanity (`hero`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
 - `/what-new` (Changelog) – Lists `changelog-entry` documents from Sanity with release date, impact badge, audience targeting, highlights, and portable-text body copy. Empty states are handled when no entries exist.
   - `/what-new/[slug]` (Changelog detail) – Deep links into the same content with consistent badges, breadcrumbs, and share-ready layout.
 - `/ai-demo` (Interactive AI workflow) – A guided experience backed by `ai-demo-sample` and `ai-demo-config` documents. Users can load sample transcripts, run a server action (`submitMeetingTranscript`) that calls an AI provider (OpenAI adapter included), and review structured summaries with copy/email/export affordances. Heuristic fallbacks keep the demo stable if credentials are missing.
