@@ -1,6 +1,6 @@
-# Schema UI - Next.js Sanity Starter Template
+# Listenote — AI Meeting Notes Demo
 
-This starter is a part of [Schema UI](https://schemaui.com) project, a comprehensive page builder that provides production-ready React components with pre-built Sanity schemas and GROQ queries, enabling rapid development of content-driven websites with Sanity CMS and Next.js.
+**Listenote** turns meeting transcripts into clear summaries, decisions, and action items. This portfolio demo showcases a marketing site, Sanity-driven pricing and changelog, and an interactive AI workflow—built on the [Schema UI](https://schemaui.com) Next.js + Sanity starter (production-ready blocks, schemas, and GROQ queries).
 
 ![Screenshot of Sanity Studio using Presentation Tool to do Visual Editing](https://cdn.sanity.io/images/a03xrv11/production/e83fee6a672a9df53548878eccddc0f962d1cac8-1920x931.webp)
 
@@ -12,9 +12,9 @@ This starter is a part of [Schema UI](https://schemaui.com) project, a comprehen
 
 ## Getting Started
 
-## Listenote Demo Overview
+## Demo overview
 
-This starter has been reshaped into **Listenote**, an AI meeting-notes SaaS demo that showcases a complete marketing + product-experience stack:
+Listenote is an AI meeting-notes SaaS demo with a complete marketing + product-experience stack:
 
 - `/**` (Marketing homepage) – Hero animations narrate "meeting → notes → actions", while pricing tiers, CTAs, and messaging are all editable via Sanity (`hero`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
 - `/what-new` (Changelog) – Lists `changelog-entry` documents from Sanity with release date, impact badge, audience targeting, highlights, and portable-text body copy. Empty states are handled when no entries exist.

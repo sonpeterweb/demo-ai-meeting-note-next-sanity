@@ -54,7 +54,7 @@ export default function Logo({ settings }: { settings: SETTINGS_QUERYResult }) {
     />
   ) : (
     <span className="text-lg font-semibold tracking-tighter">
-      {settings?.siteName || "Logo"}
+      {settings?.siteName || "Listenote"}
     </span>
   );
 }

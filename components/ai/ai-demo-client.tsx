@@ -67,6 +67,17 @@ export default function AIDemoClient({ samples }: Props) {
 
   return (
     <main className="pb-16 pt-12">
+      <div className="container mb-10 space-y-3">
+        <p className="text-sm font-medium text-primary">Listenote AI Demo</p>
+        <h1 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+          Turn transcripts into summaries and next steps
+        </h1>
+        <p className="max-w-2xl text-muted-foreground">
+          Paste a meeting transcript or load a sample scenario to see how
+          Listenote extracts summaries, decisions, and action items your team can
+          share right away.
+        </p>
+      </div>
       <section className="container grid gap-12 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         <aside className="space-y-6">
           <Card>
