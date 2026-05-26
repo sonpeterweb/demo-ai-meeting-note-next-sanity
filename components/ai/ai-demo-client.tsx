@@ -2,7 +2,6 @@
 
 import {
   useActionState,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -36,15 +35,14 @@ export default function AIDemoClient({ samples }: Props) {
   const [transcript, setTranscript] = useState<string>("");
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
   const [isPrefilling, startTransition] = useTransition();
-  const [state, formAction] = useActionState<SummarizeFormState, FormData>(
-    submitMeetingTranscript,
-    INITIAL_FORM_STATE
-  );
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [state, formAction, isPending] = useActionState<
+    SummarizeFormState,
+    FormData
+  >(submitMeetingTranscript, INITIAL_FORM_STATE);
 
   const isTranscriptRunnable =
     transcript.trim().length >= 200 || Boolean(selectedSampleId);
-  const showEmptyState = state.status === "idle" && !isSubmitting;
+  const showEmptyState = state.status === "idle" && !isPending;
   const showResults = state.status === "success" && state.result;
   const showGeneralError =
     state.status === "error" && Boolean(state.errors?.general);
@@ -85,15 +83,8 @@ export default function AIDemoClient({ samples }: Props) {
     const data = new FormData();
     data.set("transcript", transcript);
     data.set("sampleId", selectedSampleId ?? "");
-    setIsSubmitting(true);
     formAction(data);
   };
-
-  useEffect(() => {
-    if (state.status === "success" || state.status === "error") {
-      setIsSubmitting(false);
-    }
-  }, [state.status]);
 
   return (
     <div className="pb-16 pt-12">
@@ -202,11 +193,7 @@ export default function AIDemoClient({ samples }: Props) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form
-                action={formAction}
-                className="space-y-6"
-                onSubmit={() => setIsSubmitting(true)}
-              >
+              <form action={formAction} className="space-y-6">
                 <input type="hidden" name="sampleId" value={selectedSampleId ?? ""} />
 
                 <div className="space-y-2">
@@ -298,13 +285,13 @@ export default function AIDemoClient({ samples }: Props) {
             </CardContent>
           </Card>
 
-          {isSubmitting && <AIDemoLoadingPanel />}
+          {isPending && <AIDemoLoadingPanel />}
 
           {showGeneralError && (
             <AIDemoErrorPanel
               onRetry={handleRetry}
-              disabled={!isTranscriptRunnable || isSubmitting}
-              isRetrying={isSubmitting}
+              disabled={!isTranscriptRunnable || isPending}
+              isRetrying={isPending}
             />
           )}
 
