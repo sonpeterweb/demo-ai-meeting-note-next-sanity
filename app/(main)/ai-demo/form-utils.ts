@@ -13,6 +13,8 @@ export const FORM_SCHEMA = z.object({
 
 export type SummarizeFormState = {
   status: "idle" | "success" | "error";
+  /** Bumped on each successful run so the UI can refresh when status stays "success". */
+  completedAt?: number;
   message?: string;
   errors?: {
     transcript?: string;

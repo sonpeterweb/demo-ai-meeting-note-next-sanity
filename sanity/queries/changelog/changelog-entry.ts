@@ -1,8 +1,16 @@
 import { groq } from "next-sanity";
 import { bodyQuery } from "../shared/body";
 
+const CHANGELOG_PUBLISHED_FILTER = `
+  visibility == "published" || (
+    visibility == "scheduled" &&
+    defined(scheduledPublish) &&
+    scheduledPublish <= now()
+  )
+`;
+
 export const CHANGELOG_ENTRIES_QUERY = groq`
-  *[_type == "changelog-entry" && visibility != "draft"] | order(releaseDate desc){
+  *[_type == "changelog-entry" && (${CHANGELOG_PUBLISHED_FILTER})] | order(releaseDate desc){
     _id,
     _type,
     title,
@@ -39,7 +47,7 @@ export const CHANGELOG_ENTRIES_QUERY = groq`
 `;
 
 export const CHANGELOG_ENTRY_QUERY = groq`
-  *[_type == "changelog-entry" && slug.current == $slug][0]{
+  *[_type == "changelog-entry" && slug.current == $slug && (${CHANGELOG_PUBLISHED_FILTER})][0]{
     _id,
     _type,
     title,

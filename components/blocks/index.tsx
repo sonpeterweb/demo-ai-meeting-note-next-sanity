@@ -8,7 +8,6 @@ import LogoCloud from "@/components/blocks/logo-cloud/logo-cloud";
 import FAQs from "@/components/blocks/faqs";
 import FormNewsletter from "@/components/blocks/forms/newsletter";
 import PricingRow from "@/components/blocks/pricing/pricing-row";
-
 type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
 
 const componentMap: {

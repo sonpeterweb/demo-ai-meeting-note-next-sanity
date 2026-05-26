@@ -2,7 +2,6 @@ import { type SchemaTypeDefinition } from "sanity";
 // documents
 import faq from "./schemas/documents/faq";
 import category from "./schemas/documents/category";
-import testimonial from "./schemas/documents/testimonial";
 import navigation from "./schemas/documents/navigation";
 import settings from "./schemas/documents/settings";
 import page from "./schemas/documents/page";
@@ -36,13 +35,11 @@ import logoCloud from "./schemas/blocks/logo-cloud/logo-cloud";
 import faqs from "./schemas/blocks/faqs";
 import newsletter from "./schemas/blocks/forms/newsletter";
 import pricingRow from "./schemas/blocks/pricing/pricing-row";
-
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
     faq,
     category,
-    testimonial,
     navigation,
     settings,
     page,

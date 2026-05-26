@@ -82,17 +82,24 @@ export async function submitMeetingTranscript(
         };
       }
 
-      return {
-        status: "success",
-        message: `Loaded "${sample.title}" sample summary.`,
-        result: {
-          summary:
-            sample.expectedSummary ||
-            "Sample summary unavailable. Try running the AI workflow to generate a fresh summary.",
-          keyDecisions: [],
-          actionItems: sample.expectedActionItems ?? [],
-        },
-      };
+      const sampleTranscript = (sample.transcript ?? "").trim();
+      const matchesSampleTranscript =
+        sampleTranscript.length > 0 && transcript === sampleTranscript;
+
+      if (matchesSampleTranscript) {
+        return {
+          status: "success",
+          completedAt: Date.now(),
+          message: `Loaded "${sample.title}" sample summary.`,
+          result: {
+            summary:
+              sample.expectedSummary ||
+              "Sample summary unavailable. Try running the AI workflow to generate a fresh summary.",
+            keyDecisions: [],
+            actionItems: sample.expectedActionItems ?? [],
+          },
+        };
+      }
     }
 
     try {
@@ -106,6 +113,7 @@ export async function submitMeetingTranscript(
       );
       return {
         status: "success",
+        completedAt: Date.now(),
         message: "Generated AI summary and action items using provider configuration.",
         result: providerResult,
       };
@@ -115,6 +123,7 @@ export async function submitMeetingTranscript(
         const synthesizedResult = synthesizeFromTranscript(transcript);
         return {
           status: "success",
+          completedAt: Date.now(),
           message:
             "AI provider timed out; generated a quick draft summary instead. Retry for a fresh response.",
           result: synthesizedResult,
@@ -128,6 +137,7 @@ export async function submitMeetingTranscript(
       const synthesizedResult = synthesizeFromTranscript(transcript);
       return {
         status: "success",
+        completedAt: Date.now(),
         message:
           "AI provider unavailable; generated a quick draft summary instead.",
         result: synthesizedResult,

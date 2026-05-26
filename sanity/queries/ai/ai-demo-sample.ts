@@ -1,7 +1,7 @@
 import { groq } from "next-sanity";
 
 export const AI_DEMO_SAMPLES_QUERY = groq`
-  *[_type == "ai-demo-sample"] | order(_createdAt desc){
+  *[_type == "ai-demo-sample"] | order(orderRank asc, _createdAt desc){
     _id,
     _type,
     title,
