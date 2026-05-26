@@ -66,8 +66,20 @@ export default function AIDemoClient({ samples }: Props) {
     setSelectedSampleId(null);
   };
 
+  const handleTranscriptChange = (value: string) => {
+    setTranscript(value);
+    if (!selectedSampleId) {
+      return;
+    }
+    const sampleTranscript = selectedSample?.transcript?.trim() ?? "";
+    if (sampleTranscript.length > 0 && value.trim() !== sampleTranscript) {
+      setSelectedSampleId(null);
+    }
+  };
+
   const handleTryFirstSample = () => {
-    const first = samples[0];
+    const first =
+      samples.find((sample) => sample.expectedSummary?.trim()) ?? samples[0];
     if (first) {
       handleSampleSelect(first._id);
       transcriptRef.current?.focus();
@@ -203,7 +215,7 @@ export default function AIDemoClient({ samples }: Props) {
                     id="transcript"
                     name="transcript"
                     value={transcript}
-                    onChange={(event) => setTranscript(event.target.value)}
+                    onChange={(event) => handleTranscriptChange(event.target.value)}
                     placeholder="Paste raw meeting notes or load a sample from the left…"
                     rows={12}
                     aria-describedby="transcript-hint"
@@ -219,6 +231,8 @@ export default function AIDemoClient({ samples }: Props) {
                     <span>
                       {transcript.length} characters
                       {!isTranscriptRunnable && " · 200+ required without a sample"}
+                      {selectedSampleId &&
+                        " · Sample selected — edit text to run live AI"}
                     </span>
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -304,7 +318,11 @@ export default function AIDemoClient({ samples }: Props) {
           )}
 
           {showResults && state.result && (
-            <AIDemoResultsPanel result={state.result} message={state.message} />
+            <AIDemoResultsPanel
+              key={state.completedAt ?? state.message}
+              result={state.result}
+              message={state.message}
+            />
           )}
         </div>
       </div>

@@ -69,7 +69,7 @@ npx sanity dataset import listenote-seed.ndjson production --replace
 
 #### 2. Publish your first document
 
-The template ships with document types for `Category`, `FAQ`, `Page`, `Testimonial`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
+The template ships with document types for `Category`, `FAQ`, `Page`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
 
 From the Studio, click "+ Create" and select the `Page` document type. Go ahead and create and publish the document.
 
