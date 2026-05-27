@@ -70,7 +70,7 @@ describe("submitMeetingTranscript", () => {
     expect(summarizeSpy).not.toHaveBeenCalled();
   });
 
-  it("uses AI when sampleId is set but transcript was edited away from the sample", async () => {
+  it("does not call OpenAI when sampleId is set even if transcript differs", async () => {
     const sampleId = "sample-123";
     fetchSampleSpy.mockResolvedValue({
       _id: sampleId,
@@ -87,8 +87,8 @@ describe("submitMeetingTranscript", () => {
     const result = await submitMeetingTranscript(INITIAL_FORM_STATE, formData);
 
     expect(result.status).toBe("success");
-    expect(result.message).toContain("Generated AI summary");
-    expect(summarizeSpy).toHaveBeenCalled();
+    expect(result.message).toContain('Loaded "Weekly Sync" sample summary.');
+    expect(summarizeSpy).not.toHaveBeenCalled();
   });
 
   it("invokes provider and returns AI summary when available", async () => {

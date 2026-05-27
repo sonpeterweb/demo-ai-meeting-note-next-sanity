@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { submitMeetingTranscript } from "@/app/(main)/ai-demo/actions";
 import {
   INITIAL_FORM_STATE,
+  normalizeTranscriptForCompare,
   type SummarizeFormState,
 } from "@/app/(main)/ai-demo/form-utils";
 import type { AI_DEMO_SAMPLES_QUERYResult } from "@/sanity.types";
@@ -53,13 +54,11 @@ export default function AIDemoClient({ samples }: Props) {
   );
 
   const handleSampleSelect = (sampleId: string) => {
+    const match = samples.find((sample) => sample._id === sampleId);
     setSelectedSampleId(sampleId);
-    startTransition(() => {
-      const match = samples.find((sample) => sample._id === sampleId);
-      if (match?.transcript) {
-        setTranscript(match.transcript);
-      }
-    });
+    if (match?.transcript) {
+      setTranscript(match.transcript);
+    }
   };
 
   const handleClearSample = () => {
@@ -71,8 +70,12 @@ export default function AIDemoClient({ samples }: Props) {
     if (!selectedSampleId) {
       return;
     }
-    const sampleTranscript = selectedSample?.transcript?.trim() ?? "";
-    if (sampleTranscript.length > 0 && value.trim() !== sampleTranscript) {
+    const sampleTranscript = selectedSample?.transcript ?? "";
+    if (
+      sampleTranscript.length > 0 &&
+      normalizeTranscriptForCompare(value) !==
+        normalizeTranscriptForCompare(sampleTranscript)
+    ) {
       setSelectedSampleId(null);
     }
   };
@@ -95,7 +98,9 @@ export default function AIDemoClient({ samples }: Props) {
     const data = new FormData();
     data.set("transcript", transcript);
     data.set("sampleId", selectedSampleId ?? "");
-    formAction(data);
+    startTransition(() => {
+      formAction(data);
+    });
   };
 
   return (
@@ -303,6 +308,7 @@ export default function AIDemoClient({ samples }: Props) {
 
           {showGeneralError && (
             <AIDemoErrorPanel
+              message={state.errors?.general}
               onRetry={handleRetry}
               disabled={!isTranscriptRunnable || isPending}
               isRetrying={isPending}

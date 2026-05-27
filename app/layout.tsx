@@ -32,6 +32,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   robots: !isProduction ? "noindex, nofollow" : "index, follow",
+  manifest: "/site.webmanifest",
 };
 
 const fontSans = FontSans({
@@ -47,7 +48,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <link rel="icon" href="/favicon.ico" />
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased overscroll-none",

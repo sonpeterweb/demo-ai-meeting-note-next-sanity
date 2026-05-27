@@ -12,6 +12,10 @@ import {
   fetchAIDemoSamples,
 } from "@/sanity/lib/fetch";
 import { getAIDemoConfig } from "@/lib/ai/config";
+import {
+  classifyProviderError,
+  providerErrorUserMessage,
+} from "@/lib/ai/provider-errors";
 import { summarizeTranscript } from "@/lib/ai/providers";
 
 const PROVIDER_TIMEOUT_MS = Number(process.env.AI_DEMO_TIMEOUT_MS ?? 15_000);
@@ -82,24 +86,20 @@ export async function submitMeetingTranscript(
         };
       }
 
-      const sampleTranscript = (sample.transcript ?? "").trim();
-      const matchesSampleTranscript =
-        sampleTranscript.length > 0 && transcript === sampleTranscript;
-
-      if (matchesSampleTranscript) {
-        return {
-          status: "success",
-          completedAt: Date.now(),
-          message: `Loaded "${sample.title}" sample summary.`,
-          result: {
-            summary:
-              sample.expectedSummary ||
-              "Sample summary unavailable. Try running the AI workflow to generate a fresh summary.",
-            keyDecisions: [],
-            actionItems: sample.expectedActionItems ?? [],
-          },
-        };
-      }
+      // Selected samples never call OpenAI — the client clears sampleId when the
+      // transcript is edited for a custom live run.
+      return {
+        status: "success",
+        completedAt: Date.now(),
+        message: `Loaded "${sample.title}" sample summary.`,
+        result: {
+          summary:
+            sample.expectedSummary ||
+            "Sample summary unavailable. Try running the AI workflow to generate a fresh summary.",
+          keyDecisions: [],
+          actionItems: sample.expectedActionItems ?? [],
+        },
+      };
     }
 
     try {
@@ -130,6 +130,19 @@ export async function submitMeetingTranscript(
         };
       }
 
+      const failureKind = classifyProviderError(providerError);
+      const providerMessage = providerErrorUserMessage(failureKind);
+
+      if (failureKind === "quota" || failureKind === "auth") {
+        console.warn("[submitMeetingTranscript] Provider error:", providerError);
+        return {
+          status: "error",
+          errors: {
+            general: providerMessage,
+          },
+        };
+      }
+
       console.warn(
         "[submitMeetingTranscript] Falling back to heuristic summary:",
         providerError
@@ -139,7 +152,9 @@ export async function submitMeetingTranscript(
         status: "success",
         completedAt: Date.now(),
         message:
-          "AI provider unavailable; generated a quick draft summary instead.",
+          failureKind === "rate_limit"
+            ? `${providerMessage} Generated a quick draft summary instead.`
+            : "AI provider unavailable; generated a quick draft summary instead.",
         result: synthesizedResult,
       };
     }

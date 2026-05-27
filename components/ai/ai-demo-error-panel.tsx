@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
+  message?: string;
   onRetry: () => void;
   disabled: boolean;
   isRetrying: boolean;
 };
 
-export default function AIDemoErrorPanel({ onRetry, disabled, isRetrying }: Props) {
+export default function AIDemoErrorPanel({
+  message,
+  onRetry,
+  disabled,
+  isRetrying,
+}: Props) {
   return (
     <Card className="border-destructive/40 bg-destructive/10">
       <CardContent className="flex flex-col gap-4 py-6">
@@ -19,10 +25,9 @@ export default function AIDemoErrorPanel({ onRetry, disabled, isRetrying }: Prop
             <p className="font-semibold text-foreground">
               We couldn&apos;t process that transcript
             </p>
-            <p className="text-sm text-muted-foreground">
-              Check your connection, try a shorter excerpt, or load a demo sample.
-              If the AI provider is offline, the demo can still produce a draft
-              summary on retry.
+            <p className="text-sm text-muted-foreground" role="alert">
+              {message ??
+                "Check your connection, try a shorter excerpt, or load a demo sample for instant results without the API."}
             </p>
           </div>
         </div>
