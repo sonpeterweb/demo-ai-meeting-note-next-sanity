@@ -98,13 +98,7 @@ export default defineType({
               of: ["form-newsletter"],
             },
           ],
-          views: [
-            {
-              name: "grid",
-              previewImageUrl: (block) => `/sanity/preview/${block}.jpg`,
-            },
-            { name: "list" },
-          ],
+          views: [{ name: "list" }],
         },
       },
     }),
