@@ -1,20 +1,15 @@
 ---
-description: 
-globs: 
-alwaysApply: true
----
----
-description: Opinionated guidance for configuring Sanity Studio and authoring content with Schema UI Starter
+description: Opinionated guidance for Sanity Studio and block-based content in Listenote
 globs: **/*.{ts,tsx,js,jsx}
 alwaysApply: false
 ---
 ## Positive affirmation
 You are a principal-level TypeScript and React engineer who writes best-practice, high performance code.
 
-## Schema UI Architecture
-### Component Structure
+## Block architecture
+### Component structure
 
-- The Schema UI Starter uses a composable block-based architecture
+- Listenote uses a composable block-based architecture
 - Each block is defined as a schema type in Sanity and has a corresponding React component
 - Blocks are organized in a hierarchical structure with parent blocks (like `split-row` or `grid-row`) containing child components
 
@@ -38,7 +33,7 @@ const componentMap: {
 
 - Unless explicitly modelling web pages or app views, create content models for what things are, not what they look like in a front-end
 - For example, consider the `status` of an element instead of its `color`
-- Organize blocks into logical groups (hero, grid, split, carousel, etc.) for better content management
+- Organize blocks into logical groups (hero, grid, split, pricing, etc.) for better content management
 
 ### Basic schema types
 
@@ -93,18 +88,11 @@ export default defineType({
       type: "array",
       of: [
         { type: "grid-card" },
-        { type: "grid-post" },
         { type: "pricing-card" },
       ],
       options: {
         insertMenu: {
-          views: [
-            {
-              name: "grid",
-              previewImageUrl: (block) => `/sanity/preview/${block}.jpg`,
-            },
-            { name: "list" },
-          ],
+          views: [{ name: "list" }],
         },
       },
     }),
@@ -112,12 +100,11 @@ export default defineType({
   preview: {
     select: {
       title: "columns.0.title",
-      postTitle: "columns.0.post.title",
     },
-    prepare({ title, postTitle }) {
+    prepare({ title }) {
       return {
         title: "Grid Row",
-        subtitle: title || postTitle,
+        subtitle: title,
       };
     },
   },
@@ -129,7 +116,7 @@ export default defineType({
 - Parent blocks (like `split-row` or `grid-row`) should contain an array field for child components
 - Child components should be defined as separate schema types
 - Use `validation: (rule) => rule.max(n)` to limit the number of child components when appropriate
-- Use `options.insertMenu` to organize child components into logical groups with preview images
+- Use `options.insertMenu` to organize child components into logical groups
 
 ```ts
 // Example parent block with child components
@@ -145,13 +132,7 @@ defineField({
   validation: (rule) => rule.max(2),
   options: {
     insertMenu: {
-      views: [
-        {
-          name: "grid",
-          previewImageUrl: (block) => `/sanity/preview/${block}.jpg`,
-        },
-        { name: "list" },
-      ],
+      views: [{ name: "list" }],
     },
   },
 })
@@ -269,7 +250,7 @@ When asked to write content:
 - NEVER insert dynamic values using string interpolation
 - USE modular query composition by creating separate query fragments for each block type
 - ANNOTATE query fragments with `@sanity-typegen-ignore` when needed to prevent type generation issues
-- ORGANIZE query files to mirror the schema structure (e.g., queries/hero/hero-1.ts matches schemas/blocks/hero/hero-1.ts)
+- ORGANIZE query files to mirror the schema structure (e.g., `queries/hero/hero.ts` matches `schemas/blocks/hero/hero.ts`)
 - INCLUDE asset metadata in image queries to enable responsive images and optimizations
 
 ### Query Composition Pattern
@@ -309,16 +290,14 @@ Compose the main page query from individual block query fragments:
 ```ts
 // ./sanity/queries/page.ts
 import { groq } from "next-sanity";
-import { hero1Query } from "./hero/hero-1";
-import { hero2Query } from "./hero/hero-2";
+import { heroQuery } from "./hero/hero";
 import { splitRowQuery } from "./split/split-row";
 // ... other imports
 
 export const PAGE_QUERY = groq`
   *[_type == "page" && slug.current == $slug][0]{
     blocks[]{
-      ${hero1Query},
-      ${hero2Query},
+      ${heroQuery},
       ${splitRowQuery},
       // ... other block queries
     },
@@ -358,20 +337,18 @@ image{
 For document queries, follow this pattern:
 
 ```ts
-// ./sanity/queries/post.ts
+// ./sanity/queries/changelog/changelog-entry.ts
 import { groq } from "next-sanity";
 
-export const POST_QUERY = groq`*[_type == "post" && slug.current == $slug][0]{
+export const CHANGELOG_ENTRY_QUERY = groq`*[_type == "changelog-entry" && slug.current == $slug][0]{
   title,
   slug,
   // ... other fields
 }`;
 
-export const POSTS_QUERY = groq`*[_type == "post" && defined(slug)] | order(_createdAt desc){
+export const CHANGELOG_ENTRIES_QUERY = groq`*[_type == "changelog-entry" && defined(slug)] | order(releaseDate desc){
   // ... fields for list view
 }`;
-
-export const POSTS_SLUGS_QUERY = groq`*[_type == "post" && defined(slug)]{slug}`;
 ```
 
 ## TypeScript

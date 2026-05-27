@@ -10,8 +10,10 @@ export function generatePageMetadata({
   slug: string;
 }) {
   return {
-    title: page?.meta_title,
-    description: page?.meta_description,
+    title: page?.meta_title ?? "Listenote — AI Meeting Notes Assistant",
+    description:
+      page?.meta_description ??
+      "Listenote helps teams turn meeting transcripts into summaries, decisions, and action items with an AI-powered meeting notes workflow.",
     openGraph: {
       images: [
         {

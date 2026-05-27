@@ -2,7 +2,6 @@ import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 import {
   Files,
   ListCollapse,
-  Quote,
   Menu,
   Settings,
   Wallet,
@@ -10,6 +9,7 @@ import {
   Sparkles,
   ShieldCheck,
   AudioLines,
+  Tags,
 } from "lucide-react";
 
 export const structure = (S: any, context: any) =>
@@ -31,19 +31,16 @@ export const structure = (S: any, context: any) =>
         context,
       }),
       orderableDocumentListDeskItem({
-        type: "testimonial",
-        title: "Testimonials",
-        icon: Quote,
-        S,
-        context,
-      }),
-      orderableDocumentListDeskItem({
         type: "pricing-tier",
         title: "Pricing Tiers",
         icon: Wallet,
         S,
         context,
       }),
+      S.listItem()
+        .title("Categories")
+        .icon(Tags)
+        .child(S.documentTypeList("category").title("Categories")),
       S.listItem()
         .title("Changelog")
         .icon(History)

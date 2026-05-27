@@ -12,6 +12,10 @@ import {
   fetchAIDemoSamples,
 } from "@/sanity/lib/fetch";
 import { getAIDemoConfig } from "@/lib/ai/config";
+import {
+  classifyProviderError,
+  providerErrorUserMessage,
+} from "@/lib/ai/provider-errors";
 import { summarizeTranscript } from "@/lib/ai/providers";
 
 const PROVIDER_TIMEOUT_MS = Number(process.env.AI_DEMO_TIMEOUT_MS ?? 15_000);
@@ -82,8 +86,11 @@ export async function submitMeetingTranscript(
         };
       }
 
+      // Selected samples never call OpenAI — the client clears sampleId when the
+      // transcript is edited for a custom live run.
       return {
         status: "success",
+        completedAt: Date.now(),
         message: `Loaded "${sample.title}" sample summary.`,
         result: {
           summary:
@@ -106,6 +113,7 @@ export async function submitMeetingTranscript(
       );
       return {
         status: "success",
+        completedAt: Date.now(),
         message: "Generated AI summary and action items using provider configuration.",
         result: providerResult,
       };
@@ -115,9 +123,23 @@ export async function submitMeetingTranscript(
         const synthesizedResult = synthesizeFromTranscript(transcript);
         return {
           status: "success",
+          completedAt: Date.now(),
           message:
             "AI provider timed out; generated a quick draft summary instead. Retry for a fresh response.",
           result: synthesizedResult,
+        };
+      }
+
+      const failureKind = classifyProviderError(providerError);
+      const providerMessage = providerErrorUserMessage(failureKind);
+
+      if (failureKind === "quota" || failureKind === "auth") {
+        console.warn("[submitMeetingTranscript] Provider error:", providerError);
+        return {
+          status: "error",
+          errors: {
+            general: providerMessage,
+          },
         };
       }
 
@@ -128,8 +150,11 @@ export async function submitMeetingTranscript(
       const synthesizedResult = synthesizeFromTranscript(transcript);
       return {
         status: "success",
+        completedAt: Date.now(),
         message:
-          "AI provider unavailable; generated a quick draft summary instead.",
+          failureKind === "rate_limit"
+            ? `${providerMessage} Generated a quick draft summary instead.`
+            : "AI provider unavailable; generated a quick draft summary instead.",
         result: synthesizedResult,
       };
     }

@@ -29,7 +29,7 @@ export default function PricingRow({
   }
 
   return (
-    <SectionContainer color={color} padding={padding}>
+    <SectionContainer color={color} padding={padding} id="pricing">
       <div className="mx-auto flex max-w-6xl flex-col gap-12">
         <header className="space-y-4 text-center md:space-y-5">
           {eyebrow && (

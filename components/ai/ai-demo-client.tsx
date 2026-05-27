@@ -1,16 +1,26 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useMemo, useState, useTransition } from "react";
-import { useFormState, useFormStatus } from "react-dom";
-import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
+import {
+  useActionState,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
 
 import { submitMeetingTranscript } from "@/app/(main)/ai-demo/actions";
 import {
   INITIAL_FORM_STATE,
+  normalizeTranscriptForCompare,
   type SummarizeFormState,
 } from "@/app/(main)/ai-demo/form-utils";
 import type { AI_DEMO_SAMPLES_QUERYResult } from "@/sanity.types";
+import AIDemoEmptyState from "@/components/ai/ai-demo-empty-state";
+import AIDemoErrorPanel from "@/components/ai/ai-demo-error-panel";
+import AIDemoLoadingPanel from "@/components/ai/ai-demo-loading-panel";
+import AIDemoResultsPanel from "@/components/ai/ai-demo-results-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,15 +32,21 @@ type Props = {
 };
 
 export default function AIDemoClient({ samples }: Props) {
+  const transcriptRef = useRef<HTMLTextAreaElement>(null);
   const [transcript, setTranscript] = useState<string>("");
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
   const [isPrefilling, startTransition] = useTransition();
-  const [state, formAction] = useFormState<SummarizeFormState, FormData>(
-    submitMeetingTranscript,
-    INITIAL_FORM_STATE
-  );
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const isTranscriptRunnable = transcript.trim().length >= 200 || Boolean(selectedSampleId);
+  const [state, formAction, isPending] = useActionState<
+    SummarizeFormState,
+    FormData
+  >(submitMeetingTranscript, INITIAL_FORM_STATE);
+
+  const isTranscriptRunnable =
+    transcript.trim().length >= 200 || Boolean(selectedSampleId);
+  const showEmptyState = state.status === "idle" && !isPending;
+  const showResults = state.status === "success" && state.result;
+  const showGeneralError =
+    state.status === "error" && Boolean(state.errors?.general);
 
   const selectedSample = useMemo(
     () => samples.find((sample) => sample._id === selectedSampleId),
@@ -38,147 +54,197 @@ export default function AIDemoClient({ samples }: Props) {
   );
 
   const handleSampleSelect = (sampleId: string) => {
+    const match = samples.find((sample) => sample._id === sampleId);
     setSelectedSampleId(sampleId);
-    startTransition(() => {
-      const match = samples.find((sample) => sample._id === sampleId);
-      if (match?.transcript) {
-        setTranscript(match.transcript);
-      }
-    });
+    if (match?.transcript) {
+      setTranscript(match.transcript);
+    }
   };
 
   const handleClearSample = () => {
     setSelectedSampleId(null);
   };
 
+  const handleTranscriptChange = (value: string) => {
+    setTranscript(value);
+    if (!selectedSampleId) {
+      return;
+    }
+    const sampleTranscript = selectedSample?.transcript ?? "";
+    if (
+      sampleTranscript.length > 0 &&
+      normalizeTranscriptForCompare(value) !==
+        normalizeTranscriptForCompare(sampleTranscript)
+    ) {
+      setSelectedSampleId(null);
+    }
+  };
+
+  const handleTryFirstSample = () => {
+    const first =
+      samples.find((sample) => sample.expectedSummary?.trim()) ?? samples[0];
+    if (first) {
+      handleSampleSelect(first._id);
+      transcriptRef.current?.focus();
+    }
+  };
+
+  const handleFocusForm = () => {
+    transcriptRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    transcriptRef.current?.focus();
+  };
+
   const handleRetry = () => {
     const data = new FormData();
     data.set("transcript", transcript);
     data.set("sampleId", selectedSampleId ?? "");
-    setIsSubmitting(true);
-    formAction(data);
+    startTransition(() => {
+      formAction(data);
+    });
   };
 
-  useEffect(() => {
-    if (state.status === "success" || state.status === "error") {
-      setIsSubmitting(false);
-    }
-  }, [state.status]);
-
   return (
-    <main className="pb-16 pt-12">
-      <section className="container grid gap-12 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        <aside className="space-y-6">
+    <div className="pb-16 pt-12">
+      <div className="container mb-10 space-y-3">
+        <p className="text-sm font-medium text-primary">Listenote AI Demo</p>
+        <h1 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+          Turn transcripts into summaries and next steps
+        </h1>
+        <p className="max-w-2xl text-muted-foreground">
+          Paste a meeting transcript or load a sample scenario to see how
+          Listenote extracts summaries, decisions, and action items your team can
+          share right away.
+        </p>
+      </div>
+
+      <div className="container grid gap-8 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-12">
+        <aside className="order-2 space-y-6 lg:order-1">
           <Card>
             <CardHeader>
-              <CardTitle>Demo Samples</CardTitle>
+              <CardTitle>Sample transcripts</CardTitle>
               <CardDescription>
-                Pick a pre-built meeting scenario or paste your own transcript to test the workflow.
+                Choose a scenario to prefill the form, then generate insights in one
+                click.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {samples.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No samples published yet. Add <code>ai-demo-sample</code> documents in Sanity Studio to seed the demo.
+                  No samples published yet. Add meeting scenarios in Sanity Studio
+                  under <strong>AI Demo Samples</strong>.
                 </p>
               ) : (
-                <div className="space-y-3">
-                  {samples.map((sample) => (
-                    <button
-                      key={sample._id}
-                      type="button"
-                      onClick={() => handleSampleSelect(sample._id)}
-                      className={cn(
-                        "w-full rounded-xl border p-4 text-left transition-colors",
-                        selectedSampleId === sample._id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40 hover:bg-primary/5"
-                      )}
-                      disabled={isPrefilling}
-                    >
-                      <p className="font-medium text-foreground">{sample.title}</p>
-                      {sample.meetingContext && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {sample.meetingContext}
-                        </p>
-                      )}
-                      {sample.persona && (
-                        <p className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">
-                          Persona: {sample.persona}
-                        </p>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                <ul className="space-y-3" role="list">
+                  {samples.map((sample) => {
+                    const isSelected = selectedSampleId === sample._id;
+
+                    return (
+                      <li key={sample._id}>
+                        <button
+                          type="button"
+                          onClick={() => handleSampleSelect(sample._id)}
+                          aria-pressed={isSelected}
+                          className={cn(
+                            "w-full rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                            isSelected
+                              ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                              : "border-border hover:border-primary/40 hover:bg-primary/5"
+                          )}
+                          disabled={isPrefilling}
+                        >
+                          <p className="font-medium text-foreground">{sample.title}</p>
+                          {sample.meetingContext && (
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {sample.meetingContext}
+                            </p>
+                          )}
+                          {sample.persona && (
+                            <p className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">
+                              {sample.persona}
+                            </p>
+                          )}
+                          {isSelected && (
+                            <p className="mt-2 text-xs font-medium text-primary">
+                              Selected — ready to generate
+                            </p>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
 
               <div className="rounded-lg border border-dashed border-border/60 bg-muted/30 p-4">
-                <p className="text-sm font-medium text-foreground">Need real transcripts?</p>
+                <p className="text-sm font-medium text-foreground">Using your own notes?</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Drop a `.txt` transcript right into the form or copy content from your meeting tool.
+                  Paste at least 200 characters from Zoom, Teams, or a `.txt` export.
                 </p>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hidden lg:block">
             <CardHeader>
               <CardTitle>Tips</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <p>
-                Provide at least a few paragraphs (≈200+ characters) so the AI can identify key
-                themes and action items.
+                Longer transcripts produce richer summaries. Samples run instantly
+                without calling the AI provider.
               </p>
               <p>
-                Looking for the configuration? Manage system prompts and model defaults via the{" "}
-                <strong>AI Demo Config</strong> document in Sanity Studio.
-              </p>
-              <p>
-                This workflow runs entirely server-side. Keep your provider keys in{" "}
-                <code>.env.local</code> — they never hit the browser.
+                Configure prompts and models in the <strong>AI Demo Config</strong>{" "}
+                document in Sanity Studio.
               </p>
             </CardContent>
           </Card>
         </aside>
 
-        <section className="space-y-6">
+        <div className="order-1 space-y-6 lg:order-2">
           <Card>
             <CardHeader>
               <CardTitle>Summarize a meeting</CardTitle>
               <CardDescription>
-                Paste a transcript or load a demo sample to generate summaries, decisions, and action items.
+                Transcript in, structured notes out — summary, decisions, and tasks.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form
-                action={formAction}
-                className="space-y-6"
-                onSubmit={() => setIsSubmitting(true)}
-              >
+              <form action={formAction} className="space-y-6">
                 <input type="hidden" name="sampleId" value={selectedSampleId ?? ""} />
 
                 <div className="space-y-2">
-                  <Label htmlFor="transcript">Transcript</Label>
+                  <Label htmlFor="transcript">Meeting transcript</Label>
                   <textarea
+                    ref={transcriptRef}
                     id="transcript"
                     name="transcript"
                     value={transcript}
-                    onChange={(event) => setTranscript(event.target.value)}
-                    placeholder="Paste raw meeting notes or load a sample…"
+                    onChange={(event) => handleTranscriptChange(event.target.value)}
+                    placeholder="Paste raw meeting notes or load a sample from the left…"
                     rows={12}
+                    aria-describedby="transcript-hint"
                     className={cn(
                       "min-h-[200px] w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20",
                       state.errors?.transcript ? "border-destructive" : ""
                     )}
                   />
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{transcript.length} characters</span>
-                    <div className="space-x-2">
+                  <div
+                    id="transcript-hint"
+                    className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <span>
+                      {transcript.length} characters
+                      {!isTranscriptRunnable && " · 200+ required without a sample"}
+                      {selectedSampleId &&
+                        " · Sample selected — edit text to run live AI"}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
+                        className="h-8"
                         disabled={!selectedSample}
                         onClick={() => {
                           if (selectedSample?.transcript) {
@@ -186,12 +252,13 @@ export default function AIDemoClient({ samples }: Props) {
                           }
                         }}
                       >
-                        Prefill from sample
+                        Reload sample
                       </Button>
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
+                        className="h-8"
                         onClick={() => {
                           setTranscript("");
                           handleClearSample();
@@ -202,7 +269,14 @@ export default function AIDemoClient({ samples }: Props) {
                     </div>
                   </div>
                   {state.errors?.transcript && (
-                    <p className="text-sm text-destructive">{state.errors.transcript}</p>
+                    <p className="text-sm text-destructive" role="alert">
+                      {state.errors.transcript}
+                    </p>
+                  )}
+                  {state.errors?.sampleId && (
+                    <p className="text-sm text-destructive" role="alert">
+                      {state.errors.sampleId}
+                    </p>
                   )}
                 </div>
 
@@ -214,17 +288,13 @@ export default function AIDemoClient({ samples }: Props) {
                     type="file"
                     disabled
                     className="cursor-not-allowed"
+                    aria-describedby="audio-hint"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Audio ingestion is coming soon — today the demo focuses on transcripts.
+                  <p id="audio-hint" className="text-xs text-muted-foreground">
+                    Audio ingestion is coming soon — today the demo focuses on
+                    transcripts.
                   </p>
                 </div>
-
-                {state.errors?.general && (
-                  <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                    {state.errors.general}
-                  </div>
-                )}
 
                 <SubmissionFooter
                   demoTip={selectedSample?.demoTips}
@@ -234,245 +304,35 @@ export default function AIDemoClient({ samples }: Props) {
             </CardContent>
           </Card>
 
-          {isSubmitting && <PendingPanel />}
+          {isPending && <AIDemoLoadingPanel />}
 
-          {state.status === "error" && state.errors?.general && (
-            <ErrorPanel
-              message={state.errors.general}
+          {showGeneralError && (
+            <AIDemoErrorPanel
+              message={state.errors?.general}
               onRetry={handleRetry}
-              disabled={!isTranscriptRunnable || isSubmitting}
-              isRetrying={isSubmitting}
+              disabled={!isTranscriptRunnable || isPending}
+              isRetrying={isPending}
             />
           )}
 
-          {state.status === "success" && state.result && (
-            <ResultsPanel
+          {showEmptyState && !showResults && (
+            <AIDemoEmptyState
+              hasSamples={samples.length > 0}
+              onTrySample={samples.length > 0 ? handleTryFirstSample : undefined}
+              onFocusForm={handleFocusForm}
+            />
+          )}
+
+          {showResults && state.result && (
+            <AIDemoResultsPanel
+              key={state.completedAt ?? state.message}
               result={state.result}
               message={state.message}
-              isLoading={isSubmitting}
             />
           )}
-        </section>
-      </section>
-    </main>
-  );
-}
-
-type SummarizeResult = NonNullable<SummarizeFormState["result"]>;
-
-function ResultsPanel({
-  result,
-  message,
-  isLoading,
-}: {
-  result: SummarizeResult;
-  message?: SummarizeFormState["message"];
-  isLoading: boolean;
-}) {
-  const { summary, keyDecisions, actionItems } = result;
-  const [hasCopied, setHasCopied] = useState(false);
-
-  const formattedSummary = useMemo(() => {
-    const sections = [
-      `Summary:\n${summary}`,
-      `\nKey decisions:\n${
-        keyDecisions.length > 0 ? keyDecisions.map((item, idx) => `${idx + 1}. ${item}`).join("\n") : "None captured."
-      }`,
-      `\nAction items:\n${
-        actionItems.length > 0 ? actionItems.map((item, idx) => `${idx + 1}. ${item}`).join("\n") : "None captured."
-      }`,
-    ];
-    return sections.join("\n");
-  }, [summary, keyDecisions, actionItems]);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(formattedSummary);
-      setHasCopied(true);
-      window.setTimeout(() => setHasCopied(false), 2000);
-    } catch (error) {
-      console.error("[ResultsPanel] Failed to copy:", error);
-    }
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([formattedSummary], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "listenote-meeting-summary.txt";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Meeting summary & action items");
-    const body = encodeURIComponent(formattedSummary);
-    return `mailto:?subject=${subject}&body=${body}`;
-  }, [formattedSummary]);
-
-  return (
-    <section className="space-y-6">
-      <Card aria-busy={isLoading}>
-        <CardHeader>
-          <CardTitle>Summary</CardTitle>
-          {message && <CardDescription>{message}</CardDescription>}
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm leading-relaxed text-foreground">{summary}</p>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card aria-busy={isLoading}>
-          <CardHeader>
-            <CardTitle>Key decisions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {keyDecisions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No explicit decisions captured yet. Encourage the AI to call out go/no-go choices.
-              </p>
-            ) : (
-              <ul
-                className="space-y-2 text-sm text-foreground"
-                aria-live="polite"
-              >
-                {keyDecisions.map((decision, index) => (
-                  <li key={index} className="rounded-md bg-muted/40 px-3 py-2">
-                    {decision}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card aria-busy={isLoading}>
-          <CardHeader>
-            <CardTitle>Action items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {actionItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No action items identified. Add bullet points or assign owners in the transcript for better results.
-              </p>
-            ) : (
-              <ul
-                className="space-y-2 text-sm text-foreground"
-                aria-live="polite"
-              >
-                {actionItems.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="mt-1 text-primary" aria-hidden>
-                      •
-                    </span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+        </div>
       </div>
-
-      <Card aria-busy={isLoading}>
-        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-muted-foreground">
-            Ready to share the insights? Copy, download, or email the summary.
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={handleCopy}
-            >
-              {hasCopied ? "Copied!" : "Copy to clipboard"}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={handleDownload}
-            >
-              Download .txt
-            </Button>
-            <Button asChild type="button" size="sm" variant="outline">
-              <Link href={mailtoHref}>Email summary</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </section>
-  );
-}
-
-function PendingPanel() {
-  return (
-    <Card className="border-dashed border-primary/40 bg-primary/5">
-      <CardContent className="flex items-center gap-3 py-6 text-primary">
-        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-        <div className="space-y-1 text-sm">
-          <p className="font-medium">Generating insights…</p>
-          <p className="text-primary/80">
-            This can take up to 15 seconds when the AI provider is busy.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ErrorPanel({
-  message,
-  onRetry,
-  disabled,
-  isRetrying,
-}: {
-  message: string;
-  onRetry: () => void;
-  disabled: boolean;
-  isRetrying: boolean;
-}) {
-  return (
-    <Card className="border-destructive/40 bg-destructive/10">
-      <CardContent className="flex flex-col gap-3 py-6 text-destructive">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5" aria-hidden />
-          <div>
-            <p className="font-semibold">We hit a snag processing that transcript.</p>
-            <p className="text-sm text-destructive/90">{message}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={onRetry}
-            disabled={disabled}
-          >
-            {isRetrying ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                Retrying…
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" aria-hidden />
-                Retry request
-              </>
-            )}
-          </Button>
-          <p className="text-xs text-destructive/70">
-            Still not working? Try trimming long sections or loading a demo sample.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 
@@ -484,32 +344,37 @@ function SubmissionFooter({
   isRunnable: boolean;
 }) {
   const { pending } = useFormStatus();
+  const isBusy = pending;
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <Button type="submit" size="lg" disabled={pending || !isRunnable}>
-        {pending ? (
+    <div className="space-y-3">
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full sm:w-auto"
+        disabled={isBusy || !isRunnable}
+      >
+        {isBusy ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-            Generating…
+            Generating meeting notes…
           </>
         ) : (
-          "Generate Insights"
+          "Generate meeting notes"
         )}
       </Button>
 
       {demoTip && (
-        <p className="text-xs text-muted-foreground sm:ml-3">
+        <p className="text-xs text-muted-foreground">
           <strong>Demo tip:</strong> {demoTip}
         </p>
       )}
 
       {!isRunnable && (
-        <p className="text-xs text-muted-foreground sm:ml-3">
-          Provide at least 200 characters or pick a sample to enable generation.
+        <p className="text-xs text-muted-foreground">
+          Provide at least 200 characters or select a sample to enable generation.
         </p>
       )}
     </div>
   );
 }
-

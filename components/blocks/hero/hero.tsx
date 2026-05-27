@@ -104,8 +104,9 @@ export default function Hero({
             >
               <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
               <p className="text-left">
-                Listenote transforms every meeting into momentum—summaries,
-                decisions, and tasks ready before you leave the room.
+                Listenote transforms meeting transcripts into concise
+                summaries, key decisions, and action items your team can actually
+                use.
               </p>
             </motion.div>
           </div>

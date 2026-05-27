@@ -2,7 +2,6 @@ import { type SchemaTypeDefinition } from "sanity";
 // documents
 import faq from "./schemas/documents/faq";
 import category from "./schemas/documents/category";
-import testimonial from "./schemas/documents/testimonial";
 import navigation from "./schemas/documents/navigation";
 import settings from "./schemas/documents/settings";
 import page from "./schemas/documents/page";
@@ -12,13 +11,13 @@ import aiDemoSample from "./schemas/documents/ai-demo-sample";
 import aiDemoConfig from "./schemas/documents/ai-demo-config";
 import adminUser from "./schemas/documents/admin-user";
 
-// Schema UI shared objects
+// Shared block objects
 import blockContent from "./schemas/blocks/shared/block-content";
 import link from "./schemas/blocks/shared/link";
 import { colorVariant } from "./schemas/blocks/shared/color-variant";
 import { buttonVariant } from "./schemas/blocks/shared/button-variant";
 import sectionPadding from "./schemas/blocks/shared/section-padding";
-// Schema UI objects
+// Page blocks
 import hero from "./schemas/blocks/hero/hero";
 import sectionHeader from "./schemas/blocks/section-header";
 import splitRow from "./schemas/blocks/split/split-row";
@@ -36,13 +35,11 @@ import logoCloud from "./schemas/blocks/logo-cloud/logo-cloud";
 import faqs from "./schemas/blocks/faqs";
 import newsletter from "./schemas/blocks/forms/newsletter";
 import pricingRow from "./schemas/blocks/pricing/pricing-row";
-
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
     faq,
     category,
-    testimonial,
     navigation,
     settings,
     page,

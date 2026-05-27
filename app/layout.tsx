@@ -10,21 +10,29 @@ const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: {
-    template: "%s | Schema UI Starter",
-    default: "Sanity Next.js Website | Schema UI Starter",
+    template: "%s | Listenote",
+    default: "Listenote — AI Meeting Notes Assistant",
   },
+  description:
+    "Listenote helps teams turn meeting transcripts into summaries, decisions, and action items with an AI-powered meeting notes workflow.",
   openGraph: {
+    title: "Listenote — AI Meeting Notes Assistant",
+    description:
+      "Listenote helps teams turn meeting transcripts into summaries, decisions, and action items with an AI-powered meeting notes workflow.",
+    siteName: "Listenote",
     images: [
       {
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/images/og-image.jpg`,
         width: 1200,
         height: 630,
+        alt: "Listenote — AI meeting notes assistant",
       },
     ],
     locale: "en_US",
     type: "website",
   },
   robots: !isProduction ? "noindex, nofollow" : "index, follow",
+  manifest: "/site.webmanifest",
 };
 
 const fontSans = FontSans({
@@ -40,7 +48,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <link rel="icon" href="/favicon.ico" />
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased overscroll-none",

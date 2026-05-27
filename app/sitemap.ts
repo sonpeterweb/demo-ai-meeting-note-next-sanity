@@ -2,9 +2,17 @@ import { MetadataRoute } from "next";
 import { groq } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 
-async function getPagesSitemap(): Promise<MetadataRoute.Sitemap[]> {
+const CHANGELOG_PUBLISHED_FILTER = `
+  visibility == "published" || (
+    visibility == "scheduled" &&
+    defined(scheduledPublish) &&
+    scheduledPublish <= now()
+  )
+`;
+
+async function getPagesSitemap(): Promise<MetadataRoute.Sitemap> {
   const pagesQuery = groq`
-    *[_type == 'page'] | order(slug.current) {
+    *[_type == 'page' && defined(slug.current)] | order(slug.current) {
       'url': $baseUrl + select(slug.current == 'index' => '', '/' + slug.current),
       'lastModified': _updatedAt,
       'changeFrequency': 'daily',
@@ -25,18 +33,19 @@ async function getPagesSitemap(): Promise<MetadataRoute.Sitemap[]> {
   return data;
 }
 
-async function getPostsSitemap(): Promise<MetadataRoute.Sitemap[]> {
-  const postsQuery = groq`
-    *[_type == 'post'] | order(_updatedAt desc) {
-      'url': $baseUrl + '/blog/' + slug.current,
+async function getChangelogSitemap(): Promise<MetadataRoute.Sitemap> {
+  const changelogQuery = groq`
+    *[_type == "changelog-entry" && defined(slug.current) && (${CHANGELOG_PUBLISHED_FILTER})]
+      | order(releaseDate desc) {
+      'url': $baseUrl + '/what-new/' + slug.current,
       'lastModified': _updatedAt,
       'changeFrequency': 'weekly',
-      'priority': 0.7
+      'priority': 0.6
     }
   `;
 
   const { data } = await sanityFetch({
-    query: postsQuery,
+    query: changelogQuery,
     params: {
       baseUrl: process.env.NEXT_PUBLIC_SITE_URL,
     },
@@ -45,11 +54,28 @@ async function getPostsSitemap(): Promise<MetadataRoute.Sitemap[]> {
   return data;
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap[]> {
-  const [pages, posts] = await Promise.all([
+function getStaticRoutes(): MetadataRoute.Sitemap {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+  return [
+    {
+      url: `${baseUrl}/what-new`,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/ai-demo`,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+  ];
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [pages, changelog] = await Promise.all([
     getPagesSitemap(),
-    getPostsSitemap(),
+    getChangelogSitemap(),
   ]);
 
-  return [...pages, ...posts];
+  return [...pages, ...getStaticRoutes(), ...changelog];
 }

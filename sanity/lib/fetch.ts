@@ -10,7 +10,7 @@ import {
   AI_DEMO_SAMPLES_QUERY,
   AI_DEMO_SAMPLE_QUERY,
 } from "@/sanity/queries/ai/ai-demo-sample";
-import { AI_DEMO_CONFIG_QUERY } from "@/sanity/queries/ai/ai-demo-config";
+import { AI_DEMO_CONFIG_ACTIVE_QUERY } from "@/sanity/queries/ai/ai-demo-config";
 import { groq } from "next-sanity";
 import {
   PAGE_QUERYResult,
@@ -90,9 +90,17 @@ export async function fetchChangelogEntryBySlug({
   return data;
 }
 
+const CHANGELOG_PUBLISHED_FILTER = `
+  visibility == "published" || (
+    visibility == "scheduled" &&
+    defined(scheduledPublish) &&
+    scheduledPublish <= now()
+  )
+`;
+
 export async function fetchChangelogSlugs(): Promise<ChangelogSlug[]> {
   const { data } = await sanityFetch({
-    query: groq`*[_type == "changelog-entry" && defined(slug.current)]{slug}`,
+    query: groq`*[_type == "changelog-entry" && defined(slug.current) && (${CHANGELOG_PUBLISHED_FILTER})]{slug}`,
     perspective: "published",
     stega: false,
   });
@@ -124,8 +132,7 @@ export async function fetchAIDemoSampleById({
 
 export async function fetchAIDemoConfig(): Promise<AI_DEMO_CONFIG_QUERYResult | null> {
   const { data } = await sanityFetch({
-    query: AI_DEMO_CONFIG_QUERY,
-    params: {},
+    query: AI_DEMO_CONFIG_ACTIVE_QUERY,
     perspective: "published",
     stega: false,
   });

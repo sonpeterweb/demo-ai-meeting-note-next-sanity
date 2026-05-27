@@ -47,6 +47,7 @@ describe("submitMeetingTranscript", () => {
     fetchSampleSpy.mockResolvedValue({
       _id: sampleId,
       title: "Weekly Sync",
+      transcript: baseTranscript,
       expectedSummary: "Prepared summary from sample.",
       expectedActionItems: ["Share notes with stakeholders"],
     } as any);
@@ -66,6 +67,27 @@ describe("submitMeetingTranscript", () => {
         actionItems: ["Share notes with stakeholders"],
       },
     });
+    expect(summarizeSpy).not.toHaveBeenCalled();
+  });
+
+  it("does not call OpenAI when sampleId is set even if transcript differs", async () => {
+    const sampleId = "sample-123";
+    fetchSampleSpy.mockResolvedValue({
+      _id: sampleId,
+      title: "Weekly Sync",
+      transcript: "Original sample transcript only. ".repeat(12),
+      expectedSummary: "Prepared summary from sample.",
+      expectedActionItems: ["Share notes with stakeholders"],
+    } as any);
+
+    const formData = new FormData();
+    formData.set("transcript", baseTranscript);
+    formData.set("sampleId", sampleId);
+
+    const result = await submitMeetingTranscript(INITIAL_FORM_STATE, formData);
+
+    expect(result.status).toBe("success");
+    expect(result.message).toContain('Loaded "Weekly Sync" sample summary.');
     expect(summarizeSpy).not.toHaveBeenCalled();
   });
 

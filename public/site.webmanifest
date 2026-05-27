@@ -1,6 +1,6 @@
 {
-  "name": "Schema UI",
-  "short_name": "Schema UI",
+  "name": "Listenote",
+  "short_name": "Listenote",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#2d3358",
+  "background_color": "#fafafa",
   "display": "standalone"
 }

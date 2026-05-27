@@ -557,7 +557,7 @@ export type AdminUser = {
   };
   role?: "admin" | "editor" | "viewer";
   status?: "active" | "inactive" | "invited";
-  managedCollections?: Array<"testimonials" | "pricing" | "changelog" | "ai-samples">;
+  managedCollections?: Array<"pricing" | "changelog" | "ai-samples">;
   notes?: string;
   lastLogin?: string;
   orderRank?: string;
@@ -723,31 +723,6 @@ export type Navigation = {
   links?: Array<{
     _key: string;
   } & Link>;
-};
-
-export type Testimonial = {
-  _id: string;
-  _type: "testimonial";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  title?: string;
-  image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
-  body?: BlockContent;
-  rating?: number;
-  orderRank?: string;
 };
 
 export type Category = {
@@ -942,20 +917,25 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = FormNewsletter | Faqs | LogoCloud | Cta | PricingRow | GridRow | PricingCard | GridCard | SplitInfo | SplitInfoList | SplitImage | SplitCard | SplitCardsList | SplitContent | SplitRow | SectionHeader | Hero | SectionPadding | ButtonVariant | ColorVariant | BlockContent | AdminUser | AiDemoConfig | AiDemoSample | ChangelogEntry | PricingTier | Link | Settings | Navigation | Testimonial | Category | Faq | Page | Code | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = FormNewsletter | Faqs | LogoCloud | Cta | PricingRow | GridRow | PricingCard | GridCard | SplitInfo | SplitInfoList | SplitImage | SplitCard | SplitCardsList | SplitContent | SplitRow | SectionHeader | Hero | SectionPadding | ButtonVariant | ColorVariant | BlockContent | AdminUser | AiDemoConfig | AiDemoSample | ChangelogEntry | PricingTier | Link | Settings | Navigation | Category | Faq | Page | Code | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./app/sitemap.ts
 // Variable: pagesQuery
-// Query: *[_type == 'page'] | order(slug.current) {      'url': $baseUrl + select(slug.current == 'index' => '', '/' + slug.current),      'lastModified': _updatedAt,      'changeFrequency': 'daily',      'priority': select(        slug.current == 'index' => 1,        0.5      )    }
+// Query: *[_type == 'page' && defined(slug.current)] | order(slug.current) {      'url': $baseUrl + select(slug.current == 'index' => '', '/' + slug.current),      'lastModified': _updatedAt,      'changeFrequency': 'daily',      'priority': select(        slug.current == 'index' => 1,        0.5      )    }
 export type PagesQueryResult = Array<{
   url: unknown;
   lastModified: string;
   changeFrequency: "daily";
   priority: 0.5 | 1;
 }>;
-// Variable: postsQuery
-// Query: *[_type == 'post'] | order(_updatedAt desc) {      'url': $baseUrl + '/blog/' + slug.current,      'lastModified': _updatedAt,      'changeFrequency': 'weekly',      'priority': 0.7    }
-export type PostsQueryResult = Array<never>;
+// Variable: changelogQuery
+// Query: *[_type == "changelog-entry" && defined(slug.current) && (  visibility == "published" || (    visibility == "scheduled" &&    defined(scheduledPublish) &&    scheduledPublish <= now()  ))]      | order(releaseDate desc) {      'url': $baseUrl + '/what-new/' + slug.current,      'lastModified': _updatedAt,      'changeFrequency': 'weekly',      'priority': 0.6    }
+export type ChangelogQueryResult = Array<{
+  url: unknown;
+  lastModified: string;
+  changeFrequency: "weekly";
+  priority: 0.6;
+}>;
 
 // Source: ./sanity/queries/admin/admin-user.ts
 // Variable: ADMIN_USERS_QUERY
@@ -986,7 +966,7 @@ export type ADMIN_USERS_QUERYResult = Array<{
   } | null;
   role: "admin" | "editor" | "viewer" | null;
   status: "active" | "inactive" | "invited" | null;
-  managedCollections: Array<"ai-samples" | "changelog" | "pricing" | "testimonials"> | null;
+  managedCollections: Array<"ai-samples" | "changelog" | "pricing"> | null;
   notes: string | null;
   lastLogin: string | null;
   _createdAt: string;
@@ -1020,7 +1000,7 @@ export type ADMIN_USER_QUERYResult = {
   } | null;
   role: "admin" | "editor" | "viewer" | null;
   status: "active" | "inactive" | "invited" | null;
-  managedCollections: Array<"ai-samples" | "changelog" | "pricing" | "testimonials"> | null;
+  managedCollections: Array<"ai-samples" | "changelog" | "pricing"> | null;
   notes: string | null;
   lastLogin: string | null;
   _createdAt: string;
@@ -1044,6 +1024,22 @@ export type AI_DEMO_CONFIGS_QUERYResult = Array<{
   _createdAt: string;
   _updatedAt: string;
 }>;
+// Variable: AI_DEMO_CONFIG_ACTIVE_QUERY
+// Query: *[_type == "ai-demo-config"] | order(_updatedAt desc)[0]{    _id,    _type,    title,    defaultProvider,    model,    maxTokens,    temperature,    runMode,    systemPrompt,    postProcessingInstructions,    _createdAt,    _updatedAt  }
+export type AI_DEMO_CONFIG_ACTIVE_QUERYResult = {
+  _id: string;
+  _type: "ai-demo-config";
+  title: string | null;
+  defaultProvider: "anthropic" | "custom" | "google" | "openai" | null;
+  model: string | null;
+  maxTokens: number | null;
+  temperature: number | null;
+  runMode: "auto" | "manual" | null;
+  systemPrompt: string | null;
+  postProcessingInstructions: string | null;
+  _createdAt: string;
+  _updatedAt: string;
+} | null;
 // Variable: AI_DEMO_CONFIG_QUERY
 // Query: *[_type == "ai-demo-config" && _id == $id][0]{    _id,    _type,    title,    defaultProvider,    model,    maxTokens,    temperature,    runMode,    systemPrompt,    postProcessingInstructions,    _createdAt,    _updatedAt  }
 export type AI_DEMO_CONFIG_QUERYResult = {
@@ -1063,7 +1059,7 @@ export type AI_DEMO_CONFIG_QUERYResult = {
 
 // Source: ./sanity/queries/ai/ai-demo-sample.ts
 // Variable: AI_DEMO_SAMPLES_QUERY
-// Query: *[_type == "ai-demo-sample"] | order(_createdAt desc){    _id,    _type,    title,    meetingContext,    persona,    sourceType,    transcript,    audio{      asset->{        _id,        url,        mimeType,        size,        originalFilename      }    },    expectedSummary,    expectedActionItems,    demoTips,    _createdAt,    _updatedAt  }
+// Query: *[_type == "ai-demo-sample"] | order(orderRank asc, _createdAt desc){    _id,    _type,    title,    meetingContext,    persona,    sourceType,    transcript,    audio{      asset->{        _id,        url,        mimeType,        size,        originalFilename      }    },    expectedSummary,    expectedActionItems,    demoTips,    _createdAt,    _updatedAt  }
 export type AI_DEMO_SAMPLES_QUERYResult = Array<{
   _id: string;
   _type: "ai-demo-sample";
@@ -1115,7 +1111,7 @@ export type AI_DEMO_SAMPLE_QUERYResult = {
 
 // Source: ./sanity/queries/changelog/changelog-entry.ts
 // Variable: CHANGELOG_ENTRIES_QUERY
-// Query: *[_type == "changelog-entry" && visibility != "draft"] | order(releaseDate desc){    _id,    _type,    title,    slug{      current    },    releaseDate,    impactLevel,    audience,    summary,    highlights,    body[]{        ...,  markDefs[]{    ...,    _type == "link" => {          _key,    ...,    "href": select(      isExternal => href,      defined(href) && !defined(internalLink) => href,      @.internalLink->slug.current == "index" => "/",      "/" + @.internalLink->slug.current    )    }  },  _type == "image" => {      ...,  asset->{    _id,    url,    mimeType,    metadata {      lqip,      dimensions {        width,        height      }    }  }  }    },    tags[]->{      _id,      title,      slug{        current      }    },    relatedPages[]->{      _id,      title,      slug{        current      }    },    visibility,    scheduledPublish,    _createdAt,    _updatedAt  }
+// Query: *[_type == "changelog-entry" && (  visibility == "published" || (    visibility == "scheduled" &&    defined(scheduledPublish) &&    scheduledPublish <= now()  ))] | order(releaseDate desc){    _id,    _type,    title,    slug{      current    },    releaseDate,    impactLevel,    audience,    summary,    highlights,    body[]{        ...,  markDefs[]{    ...,    _type == "link" => {          _key,    ...,    "href": select(      isExternal => href,      defined(href) && !defined(internalLink) => href,      @.internalLink->slug.current == "index" => "/",      "/" + @.internalLink->slug.current    )    }  },  _type == "image" => {      ...,  asset->{    _id,    url,    mimeType,    metadata {      lqip,      dimensions {        width,        height      }    }  }  }    },    tags[]->{      _id,      title,      slug{        current      }    },    relatedPages[]->{      _id,      title,      slug{        current      }    },    visibility,    scheduledPublish,    _createdAt,    _updatedAt  }
 export type CHANGELOG_ENTRIES_QUERYResult = Array<{
   _id: string;
   _type: "changelog-entry";
@@ -1205,7 +1201,7 @@ export type CHANGELOG_ENTRIES_QUERYResult = Array<{
   _updatedAt: string;
 }>;
 // Variable: CHANGELOG_ENTRY_QUERY
-// Query: *[_type == "changelog-entry" && slug.current == $slug][0]{    _id,    _type,    title,    slug{      current    },    releaseDate,    impactLevel,    audience,    summary,    highlights,    body[]{        ...,  markDefs[]{    ...,    _type == "link" => {          _key,    ...,    "href": select(      isExternal => href,      defined(href) && !defined(internalLink) => href,      @.internalLink->slug.current == "index" => "/",      "/" + @.internalLink->slug.current    )    }  },  _type == "image" => {      ...,  asset->{    _id,    url,    mimeType,    metadata {      lqip,      dimensions {        width,        height      }    }  }  }    },    tags[]->{      _id,      title,      slug{        current      }    },    relatedPages[]->{      _id,      title,      slug{        current      }    },    visibility,    scheduledPublish,    _createdAt,    _updatedAt  }
+// Query: *[_type == "changelog-entry" && slug.current == $slug && (  visibility == "published" || (    visibility == "scheduled" &&    defined(scheduledPublish) &&    scheduledPublish <= now()  ))][0]{    _id,    _type,    title,    slug{      current    },    releaseDate,    impactLevel,    audience,    summary,    highlights,    body[]{        ...,  markDefs[]{    ...,    _type == "link" => {          _key,    ...,    "href": select(      isExternal => href,      defined(href) && !defined(internalLink) => href,      @.internalLink->slug.current == "index" => "/",      "/" + @.internalLink->slug.current    )    }  },  _type == "image" => {      ...,  asset->{    _id,    url,    mimeType,    metadata {      lqip,      dimensions {        width,        height      }    }  }  }    },    tags[]->{      _id,      title,      slug{        current      }    },    relatedPages[]->{      _id,      title,      slug{        current      }    },    visibility,    scheduledPublish,    _createdAt,    _updatedAt  }
 export type CHANGELOG_ENTRY_QUERYResult = {
   _id: string;
   _type: "changelog-entry";
@@ -2147,16 +2143,17 @@ export type SETTINGS_QUERYResult = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "\n    *[_type == 'page'] | order(slug.current) {\n      'url': $baseUrl + select(slug.current == 'index' => '', '/' + slug.current),\n      'lastModified': _updatedAt,\n      'changeFrequency': 'daily',\n      'priority': select(\n        slug.current == 'index' => 1,\n        0.5\n      )\n    }\n  ": PagesQueryResult;
-    "\n    *[_type == 'post'] | order(_updatedAt desc) {\n      'url': $baseUrl + '/blog/' + slug.current,\n      'lastModified': _updatedAt,\n      'changeFrequency': 'weekly',\n      'priority': 0.7\n    }\n  ": PostsQueryResult;
+    "\n    *[_type == 'page' && defined(slug.current)] | order(slug.current) {\n      'url': $baseUrl + select(slug.current == 'index' => '', '/' + slug.current),\n      'lastModified': _updatedAt,\n      'changeFrequency': 'daily',\n      'priority': select(\n        slug.current == 'index' => 1,\n        0.5\n      )\n    }\n  ": PagesQueryResult;
+    "\n    *[_type == \"changelog-entry\" && defined(slug.current) && (\n  visibility == \"published\" || (\n    visibility == \"scheduled\" &&\n    defined(scheduledPublish) &&\n    scheduledPublish <= now()\n  )\n)]\n      | order(releaseDate desc) {\n      'url': $baseUrl + '/what-new/' + slug.current,\n      'lastModified': _updatedAt,\n      'changeFrequency': 'weekly',\n      'priority': 0.6\n    }\n  ": ChangelogQueryResult;
     "\n  *[_type == \"admin-user\"] | order(fullName asc){\n    _id,\n    _type,\n    fullName,\n    email,\n    avatar{\n      \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n    },\n    role,\n    status,\n    managedCollections,\n    notes,\n    lastLogin,\n    _createdAt,\n    _updatedAt\n  }\n": ADMIN_USERS_QUERYResult;
     "\n  *[_type == \"admin-user\" && email == $email][0]{\n    _id,\n    _type,\n    fullName,\n    email,\n    avatar{\n      \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n    },\n    role,\n    status,\n    managedCollections,\n    notes,\n    lastLogin,\n    _createdAt,\n    _updatedAt\n  }\n": ADMIN_USER_QUERYResult;
     "\n  *[_type == \"ai-demo-config\"] | order(_updatedAt desc){\n    _id,\n    _type,\n    title,\n    defaultProvider,\n    model,\n    maxTokens,\n    temperature,\n    runMode,\n    systemPrompt,\n    postProcessingInstructions,\n    _createdAt,\n    _updatedAt\n  }\n": AI_DEMO_CONFIGS_QUERYResult;
+    "\n  *[_type == \"ai-demo-config\"] | order(_updatedAt desc)[0]{\n    _id,\n    _type,\n    title,\n    defaultProvider,\n    model,\n    maxTokens,\n    temperature,\n    runMode,\n    systemPrompt,\n    postProcessingInstructions,\n    _createdAt,\n    _updatedAt\n  }\n": AI_DEMO_CONFIG_ACTIVE_QUERYResult;
     "\n  *[_type == \"ai-demo-config\" && _id == $id][0]{\n    _id,\n    _type,\n    title,\n    defaultProvider,\n    model,\n    maxTokens,\n    temperature,\n    runMode,\n    systemPrompt,\n    postProcessingInstructions,\n    _createdAt,\n    _updatedAt\n  }\n": AI_DEMO_CONFIG_QUERYResult;
-    "\n  *[_type == \"ai-demo-sample\"] | order(_createdAt desc){\n    _id,\n    _type,\n    title,\n    meetingContext,\n    persona,\n    sourceType,\n    transcript,\n    audio{\n      asset->{\n        _id,\n        url,\n        mimeType,\n        size,\n        originalFilename\n      }\n    },\n    expectedSummary,\n    expectedActionItems,\n    demoTips,\n    _createdAt,\n    _updatedAt\n  }\n": AI_DEMO_SAMPLES_QUERYResult;
+    "\n  *[_type == \"ai-demo-sample\"] | order(orderRank asc, _createdAt desc){\n    _id,\n    _type,\n    title,\n    meetingContext,\n    persona,\n    sourceType,\n    transcript,\n    audio{\n      asset->{\n        _id,\n        url,\n        mimeType,\n        size,\n        originalFilename\n      }\n    },\n    expectedSummary,\n    expectedActionItems,\n    demoTips,\n    _createdAt,\n    _updatedAt\n  }\n": AI_DEMO_SAMPLES_QUERYResult;
     "\n  *[_type == \"ai-demo-sample\" && _id == $id][0]{\n    _id,\n    _type,\n    title,\n    meetingContext,\n    persona,\n    sourceType,\n    transcript,\n    audio{\n      asset->{\n        _id,\n        url,\n        mimeType,\n        size,\n        originalFilename\n      }\n    },\n    expectedSummary,\n    expectedActionItems,\n    demoTips,\n    _createdAt,\n    _updatedAt\n  }\n": AI_DEMO_SAMPLE_QUERYResult;
-    "\n  *[_type == \"changelog-entry\" && visibility != \"draft\"] | order(releaseDate desc){\n    _id,\n    _type,\n    title,\n    slug{\n      current\n    },\n    releaseDate,\n    impactLevel,\n    audience,\n    summary,\n    highlights,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    tags[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    relatedPages[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    visibility,\n    scheduledPublish,\n    _createdAt,\n    _updatedAt\n  }\n": CHANGELOG_ENTRIES_QUERYResult;
-    "\n  *[_type == \"changelog-entry\" && slug.current == $slug][0]{\n    _id,\n    _type,\n    title,\n    slug{\n      current\n    },\n    releaseDate,\n    impactLevel,\n    audience,\n    summary,\n    highlights,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    tags[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    relatedPages[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    visibility,\n    scheduledPublish,\n    _createdAt,\n    _updatedAt\n  }\n": CHANGELOG_ENTRY_QUERYResult;
+    "\n  *[_type == \"changelog-entry\" && (\n  visibility == \"published\" || (\n    visibility == \"scheduled\" &&\n    defined(scheduledPublish) &&\n    scheduledPublish <= now()\n  )\n)] | order(releaseDate desc){\n    _id,\n    _type,\n    title,\n    slug{\n      current\n    },\n    releaseDate,\n    impactLevel,\n    audience,\n    summary,\n    highlights,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    tags[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    relatedPages[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    visibility,\n    scheduledPublish,\n    _createdAt,\n    _updatedAt\n  }\n": CHANGELOG_ENTRIES_QUERYResult;
+    "\n  *[_type == \"changelog-entry\" && slug.current == $slug && (\n  visibility == \"published\" || (\n    visibility == \"scheduled\" &&\n    defined(scheduledPublish) &&\n    scheduledPublish <= now()\n  )\n)][0]{\n    _id,\n    _type,\n    title,\n    slug{\n      current\n    },\n    releaseDate,\n    impactLevel,\n    audience,\n    summary,\n    highlights,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    tags[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    relatedPages[]->{\n      _id,\n      title,\n      slug{\n        current\n      }\n    },\n    visibility,\n    scheduledPublish,\n    _createdAt,\n    _updatedAt\n  }\n": CHANGELOG_ENTRY_QUERYResult;
     "\n  *[_type == \"navigation\"]{\n    _type,\n    _key,\n    links[]{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  }\n": NAVIGATION_QUERYResult;
     "\n  *[_type == \"page\" && slug.current == $slug][0]{\n    blocks[]{\n      \n  _type == \"hero\" => {\n    _type,\n    _key,\n    tagLine,\n    title,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    image{\n      \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n    },\n    links[]{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    },\n  }\n,\n      \n  _type == \"section-header\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    sectionWidth,\n    stackAlign,\n    tagLine,\n    title,\n    description,\n    link{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    },\n  }\n,\n      \n  _type == \"split-row\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    noGap,\n    splitColumns[]{\n      \n  _type == \"split-content\" => {\n    _type,\n    _key,\n    sticky,\n    padding,\n    colorVariant,\n    tagLine,\n    title,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    link{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    },\n  }\n,\n      \n  _type == \"split-cards-list\" => {\n    _type,\n    _key,\n    list[]{\n      tagLine,\n      title,\n      body[]{\n        \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n      },\n    },\n  }\n,\n      \n  _type == \"split-image\" => {\n    _type,\n    _key,\n    image{\n      \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n    },\n  }\n,\n      \n  _type == \"split-info-list\" => {\n    _type,\n    _key,\n    list[]{\n      image{\n        \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n      },\n      title,\n      body[]{\n        \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n      },\n      tags[],\n    },\n  }\n,\n    },\n  }\n,\n      \n  _type == \"grid-row\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    gridColumns,\n    columns[]{\n      \n  _type == \"grid-card\" => {\n    _type,\n    _key,\n    title,\n    excerpt,\n    image{\n      \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n    },\n    link{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    },\n  }\n,\n      \n  _type == \"pricing-card\" => {\n    _type,\n    _key,\n    title,\n    tagLine,\n    price,\n    list[],\n    excerpt,\n    link{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    },\n  }\n,\n    },\n  }\n,\n      \n  _type == \"pricing-row\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    eyebrow,\n    title,\n    description,\n    footnote,\n    highlightedTier->{\n      _id\n    },\n    tiers[]->{\n      _id,\n      title,\n      slug{\n        current\n      },\n      subtitle,\n      badge,\n      description,\n      status,\n      price{\n        amount,\n        currency,\n        billingCycle\n      },\n      features,\n      cta{\n        \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n      }\n    }\n  }\n,\n      \n  _type == \"cta\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    sectionWidth,\n    stackAlign,\n    tagLine,\n    title,\n    body[]{\n      \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n    },\n    links[]{\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    },\n  }\n,\n      \n  _type == \"logo-cloud\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    title,\n    images[]{\n      \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n    },\n  }\n,\n      \n  _type == \"faqs\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    faqs[]->{\n      _id,\n      title,\n      body[]{\n        \n  ...,\n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \n    _key,\n    ...,\n    \"href\": select(\n      isExternal => href,\n      defined(href) && !defined(internalLink) => href,\n      @.internalLink->slug.current == \"index\" => \"/\",\n      \"/\" + @.internalLink->slug.current\n    )\n\n    }\n  },\n  _type == \"image\" => {\n    \n  ...,\n  asset->{\n    _id,\n    url,\n    mimeType,\n    metadata {\n      lqip,\n      dimensions {\n        width,\n        height\n      }\n    }\n  }\n\n  }\n\n      },\n    },\n  }\n,\n      \n  _type == \"form-newsletter\" => {\n    _type,\n    _key,\n    padding,\n    colorVariant,\n    stackAlign,\n    consentText,\n    buttonText,\n    successMessage,\n  }\n,\n    },\n    meta_title,\n    meta_description,\n    noindex,\n    ogImage {\n      asset->{\n        _id,\n        url,\n        metadata {\n          dimensions {\n            width,\n            height\n          }\n        }\n      },\n    }\n  }\n": PAGE_QUERYResult;
     "*[_type == \"page\" && defined(slug)]{slug}": PAGES_SLUGS_QUERYResult;

@@ -13,6 +13,8 @@ export const FORM_SCHEMA = z.object({
 
 export type SummarizeFormState = {
   status: "idle" | "success" | "error";
+  /** Bumped on each successful run so the UI can refresh when status stays "success". */
+  completedAt?: number;
   message?: string;
   errors?: {
     transcript?: string;
@@ -36,6 +38,28 @@ export const parseTranscriptForm = (formData: FormData) =>
     transcript: formData.get("transcript"),
     sampleId: formData.get("sampleId"),
   });
+
+/** Normalize transcript text before comparing sample vs submitted content. */
+export function normalizeTranscriptForCompare(value: string) {
+  return value
+    .trim()
+    .replace(/\r\n/g, "\n")
+    .replace(/\u2018|\u2019/g, "'")
+    .replace(/\u201c|\u201d/g, '"')
+    .replace(/\u2013|\u2014/g, "-");
+}
+
+export function transcriptsMatchForSample(
+  submitted: string,
+  sampleTranscript: string
+) {
+  const normalizedSubmitted = normalizeTranscriptForCompare(submitted);
+  const normalizedSample = normalizeTranscriptForCompare(sampleTranscript);
+  return (
+    normalizedSample.length > 0 &&
+    normalizedSubmitted === normalizedSample
+  );
+}
 
 export function synthesizeFromTranscript(transcript: string) {
   const sentences = transcript
