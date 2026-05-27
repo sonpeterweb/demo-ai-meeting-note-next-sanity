@@ -1,89 +1,61 @@
 # Listenote — AI Meeting Notes Demo
 
-**Listenote** turns meeting transcripts into clear summaries, decisions, and action items. This portfolio demo showcases a marketing site, Sanity-driven pricing and changelog, and an interactive AI workflow—built on the [Schema UI](https://schemaui.com) Next.js + Sanity starter (production-ready blocks, schemas, and GROQ queries).
+**Listenote** turns meeting transcripts into clear summaries, decisions, and action items. This portfolio demo includes a marketing site (Sanity-driven blocks and pricing), a changelog, and an interactive AI workflow.
 
 ![Screenshot of Sanity Studio using Presentation Tool to do Visual Editing](https://cdn.sanity.io/images/a03xrv11/production/e83fee6a672a9df53548878eccddc0f962d1cac8-1920x931.webp)
 
 [![Next.js][next-js]][next-js-url] [![Sanity][sanity]][sanity-url] [![React][react]][react-url] [![Typescript][typescript]][typescript-url] [![Tailwind][tailwind]][tailwind-url] [![Shadcn][shadcn]][shadcn-url]
 
-[Docs](https://schemaui.com/docs) | [Components](https://schemaui.com/docs/components) | [Demo](https://starter.schemaui.com)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fserge-0v%2Fnext-js-sanity-starter&env=NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SITE_ENV,NEXT_PUBLIC_SANITY_API_VERSION,NEXT_PUBLIC_SANITY_PROJECT_ID,NEXT_PUBLIC_SANITY_DATASET,SANITY_API_READ_TOKEN,RESEND_API_KEY,RESEND_AUDIENCE_ID&demo-title=Next.js%20Sanity%20Starter&demo-description=Next.js%20Sanity%20Starter%20by%20Schema%20UI&demo-url=https%3A%2F%2Fstarter.schemaui.com)
-
 ## Getting Started
 
-## Demo overview
+### Demo overview
 
 Listenote is an AI meeting-notes SaaS demo with a complete marketing + product-experience stack:
 
-- `/**` (Marketing homepage) – Hero animations narrate "meeting → notes → actions", while pricing tiers, CTAs, and messaging are all editable via Sanity (`hero`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
+- `/**` (Marketing homepage) – Hero animations narrate "meeting → notes → actions", while pricing tiers, CTAs, and messaging are editable via Sanity (`hero`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
 - `/what-new` (Changelog) – Lists `changelog-entry` documents from Sanity with release date, impact badge, audience targeting, highlights, and portable-text body copy. Empty states are handled when no entries exist.
   - `/what-new/[slug]` (Changelog detail) – Deep links into the same content with consistent badges, breadcrumbs, and share-ready layout.
 - `/ai-demo` (Interactive AI workflow) – A guided experience backed by `ai-demo-sample` and `ai-demo-config` documents. Users can load sample transcripts, run a server action (`submitMeetingTranscript`) that calls an AI provider (OpenAI adapter included), and review structured summaries with copy/email/export affordances. Heuristic fallbacks keep the demo stable if credentials are missing.
 
-Supporting documents (`pricing-tier`, `changelog-entry`, `ai-demo-sample`, `ai-demo-config`, `admin-user`) are registered in Sanity Studio, replacing the original blog/carousel examples with content your portfolio audience can relate to immediately.
+Supporting documents (`pricing-tier`, `changelog-entry`, `ai-demo-sample`, `ai-demo-config`, `admin-user`) are registered in Sanity Studio.
 
-### Installing the template
+### Run locally
 
-#### 1. Initialize template with Sanity CLI
-
-Run the command in your Terminal to initialize this template on your local computer:
+1. Clone the repository and install dependencies:
 
 ```bash
-npm create sanity@latest -- --template serge-0v/next-js-sanity-starter
+pnpm install
 ```
 
-See the documentation if you are [having issues with the CLI](https://www.sanity.io/help/cli-errors).
+2. Copy environment variables (see [Environment variables](#environment-variables)) into `.env.local`.
 
-This command will:
-
-- Create a new Sanity project
-- Add API Read Token
-- Configure CORS origin for http://localhost:3000
-- Set up environment variables
-- Clone the repository
-- Install dependencies
-
-#### 2. Run the template locally
-
-Start the development servers:
+3. Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-#### 3. Open the app and sign in to the Studio
-
-- Open the Next.js app at [http://localhost:3000](http://localhost:3000)
-- Open the Studio running locally in your browser on [http://localhost:3000/studio](http://localhost:3000/studio). You should now see a screen prompting you to log in to the Studio. Use the same service (Google, GitHub, or email) that you used when you logged in to the CLI.
+4. Open the app at [http://localhost:3000](http://localhost:3000) and the Studio at [http://localhost:3000/studio](http://localhost:3000/studio).
 
 ### Adding content with Sanity
 
-#### 1. Import Sample Data (Optional)
-
-Import the demo dataset to get started with sample content:
+#### Import sample data (optional)
 
 ```bash
 npx sanity dataset import listenote-seed.ndjson production --replace
 ```
 
-#### 2. Publish your first document
+#### Publish your first document
 
-The template ships with document types for `Category`, `FAQ`, `Page`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
+Document types include `Category`, `FAQ`, `Page`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
 
-From the Studio, click "+ Create" and select the `Page` document type. Go ahead and create and publish the document.
+From the Studio, create and publish a `Page` document. Content appears on the site once published.
 
-Your content should now appear in your Next.js app ([http://localhost:3000](http://localhost:3000))
+#### Extend the schema
 
-#### 3. Extending the Sanity schema
+Page blocks live under `sanity/schemas/blocks/`. Add new block schema types, register them in `sanity/schema.ts` and `sanity/schemas/documents/page.ts`, then add matching query fragments and React components in `sanity/queries/` and `components/blocks/`.
 
-The schema for the `Page` document type is defined in the `sanity/schemas/document/page.ts` file. You can [add more document types](https://www.sanity.io/docs/schema-types) to the schema to suit your needs.
-
-#### 4. Adding new components
-
-This template includes all components from the [Schema UI](https://schemaui.com/docs/components) library. Visit [Schema UI Docs](https://schemaui.com/docs/how-to-use) to learn how to add new components.
-
-#### 5. Configure the AI demo (optional)
+#### Configure the AI demo (optional)
 
 The `/ai-demo` route showcases the meeting summarization workflow. To connect it to a live provider:
 
@@ -101,74 +73,48 @@ The `/ai-demo` route showcases the meeting summarization workflow. To connect it
 
 Without an API key, the UI still works with demo samples and lightweight heuristic summaries.
 
-### Deploying your application
+### Deploying
 
-#### 1. Configure CORS settings
-
-Add your production URL to the CORS Origins in your Sanity project settings to allow your deployed site to communicate with Sanity.
-
-#### 2. Deploy to Vercel
-
-Deploy your website to Vercel:
-
-1. Create a new repository on [GitHub](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
-2. Push your code to GitHub
-3. Create a [new Vercel project](https://vercel.com/new)
-4. Connect your GitHub repository and import the project
-5. Copy the environment variables from the `.env.local` file and paste them to your Vercel project settings. Vercel supports pasting all variables at once.
-6. Deploy
+1. Add your production URL to CORS origins in your Sanity project settings.
+2. Push to GitHub and deploy on [Vercel](https://vercel.com/new) (or your host of choice).
+3. Copy environment variables from `.env.local` into the deployment settings.
 
 ### Inviting collaborators
 
-Now that you've deployed your Next.js application and Sanity Studio, you can optionally invite a collaborator to your Studio. Open up [Manage](https://www.sanity.io/manage), select your project and click "Invite project members"
-
-They will be able to access the deployed Studio, where you can collaborate together on creating content.
+Open [Sanity Manage](https://www.sanity.io/manage), select your project, and invite members so they can use the deployed Studio.
 
 ### Configuring Resend (optional)
 
-To use the newsletter form, you need to configure Resend.
+For the newsletter form:
 
-1. Create a new [Resend account](https://resend.com/signup)
-2. Create a new [API key](https://resend.com/api-keys)
-3. Copy the [audience](https://resend.com/audiences) id
-4. Set the API key and audience ID in the Vercel project settings or in the `.env.local` file
+1. Create a [Resend](https://resend.com/signup) account and API key.
+2. Copy your [audience](https://resend.com/audiences) id.
+3. Set `RESEND_API_KEY` and `RESEND_AUDIENCE_ID` in `.env.local` or your host.
 
 ## Sanity TypeGen
 
-To generate the types, run the following command:
-
 ```bash
 npx sanity schema extract
-```
-
-This will generate `schema.json` file in the root of the project.
-
-To generate the types, run the following command:
-
-```bash
 npx sanity typegen generate
 ```
 
-This will generate the types in the `sanity.types.ts` file in the root of the project.
+Or use the npm script:
+
+```bash
+pnpm typegen
+```
 
 ## Environment variables
 
-All environment variables and their descriptions:
-
-- `NEXT_PUBLIC_SITE_URL` - your website url. For example, `https://yourwebsite.com` without trailing slash.
-- `NEXT_PUBLIC_SITE_ENV` - specifies the environment type (development/production) and affects metadata configuration. Setting this to "development" prevents search engine indexing, which is useful for staging environments (e.g., `dev.yourwebsite.com`).
-- `NEXT_PUBLIC_SANITY_API_VERSION` - your Sanity API version. You don't have to use specific dates, any past or present date is valid, and today's date will always give you the latest version - no need to check release history. For example: YYYY-MM-DD.
-- `NEXT_PUBLIC_SANITY_PROJECT_ID` - your Sanity project ID. For example, abc12345.
-- `NEXT_PUBLIC_SANITY_DATASET` - your Sanity dataset name. For example, production.
-- `SANITY_API_READ_TOKEN` - your Sanity read token for Next.js to fetch data.
-- `RESEND_API_KEY` - your RESEND api key for the newsletter form.
-- `RESEND_AUDIENCE_ID` - your RESEND audience id for the newsletter form to store contacts.
-
-## Examples
-
-New i18n example added as separate branch at [example/i18n](https://github.com/serge-0v/next-js-sanity-starter/tree/example/i18n). Example is fully integrated with the template.
-
-[Preview i18n example Live](https://starter-i18n.schemaui.com/en)
+- `NEXT_PUBLIC_SITE_URL` – Site URL without trailing slash (e.g. `https://yourwebsite.com`).
+- `NEXT_PUBLIC_SITE_ENV` – `development` prevents search engine indexing on staging.
+- `NEXT_PUBLIC_SANITY_API_VERSION` – Sanity API version (e.g. `2024-01-01`).
+- `NEXT_PUBLIC_SANITY_PROJECT_ID` – Sanity project ID.
+- `NEXT_PUBLIC_SANITY_DATASET` – Dataset name (e.g. `production`).
+- `SANITY_API_READ_TOKEN` – Read token for fetching content in Next.js.
+- `RESEND_API_KEY` – Resend API key for the newsletter form.
+- `RESEND_AUDIENCE_ID` – Resend audience id for newsletter contacts.
+- `OPENAI_API_KEY`, `AI_DEMO_PROVIDER`, `AI_DEMO_MODEL`, etc. – See AI demo section above.
 
 [react-url]: https://reactjs.org/
 [next-js-url]: https://nextjs.org/
