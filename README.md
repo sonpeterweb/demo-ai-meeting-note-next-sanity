@@ -83,14 +83,6 @@ Without an API key, the UI still works with demo samples and lightweight heurist
 
 Open [Sanity Manage](https://www.sanity.io/manage), select your project, and invite members so they can use the deployed Studio.
 
-### Configuring Resend (optional)
-
-For the newsletter form:
-
-1. Create a [Resend](https://resend.com/signup) account and API key.
-2. Copy your [audience](https://resend.com/audiences) id.
-3. Set `RESEND_API_KEY` and `RESEND_AUDIENCE_ID` in `.env.local` or your host.
-
 ## Sanity TypeGen
 
 ```bash
@@ -112,8 +104,6 @@ pnpm typegen
 - `NEXT_PUBLIC_SANITY_PROJECT_ID` – Sanity project ID.
 - `NEXT_PUBLIC_SANITY_DATASET` – Dataset name (e.g. `production`).
 - `SANITY_API_READ_TOKEN` – Read token for fetching content in Next.js.
-- `RESEND_API_KEY` – Resend API key for the newsletter form.
-- `RESEND_AUDIENCE_ID` – Resend audience id for newsletter contacts.
 - `OPENAI_API_KEY`, `AI_DEMO_PROVIDER`, `AI_DEMO_MODEL`, etc. – See AI demo section above.
 
 [react-url]: https://reactjs.org/

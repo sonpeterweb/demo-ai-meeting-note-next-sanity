@@ -6,7 +6,6 @@ import GridRow from "@/components/blocks/grid/grid-row";
 import Cta from "@/components/blocks/cta/cta";
 import LogoCloud from "@/components/blocks/logo-cloud/logo-cloud";
 import FAQs from "@/components/blocks/faqs";
-import FormNewsletter from "@/components/blocks/forms/newsletter";
 import PricingRow from "@/components/blocks/pricing/pricing-row";
 type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
 
@@ -21,7 +20,6 @@ const componentMap: {
   cta: Cta,
   "logo-cloud": LogoCloud,
   faqs: FAQs,
-  "form-newsletter": FormNewsletter,
 };
 
 export default function Blocks({ blocks }: { blocks: Block[] }) {
