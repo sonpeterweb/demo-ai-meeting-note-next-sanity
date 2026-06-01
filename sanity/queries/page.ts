@@ -6,7 +6,6 @@ import { gridRowQuery } from "./grid/grid-row";
 import { ctaQuery } from "./cta/cta";
 import { logoCloudQuery } from "./logo-cloud/logo-cloud";
 import { faqsQuery } from "./faqs";
-import { formNewsletterQuery } from "./forms/newsletter";
 import { pricingRowQuery } from "./pricing/pricing-row";
 export const PAGE_QUERY = groq`
   *[_type == "page" && slug.current == $slug][0]{
@@ -19,7 +18,6 @@ export const PAGE_QUERY = groq`
       ${ctaQuery},
       ${logoCloudQuery},
       ${faqsQuery},
-      ${formNewsletterQuery},
     },
     meta_title,
     meta_description,
