@@ -10,8 +10,8 @@
 
 ## Case study
 
-**Role:** Frontend / full-stack engineer (solo) — Peter
-**Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Sanity CMS · OpenAI · Vitest · Vercel
+**Role:** Frontend / full-stack engineer (solo) — Peter Son 
+**Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Sanity CMS · OpenAI · Vitest · Vercel 
 **Live:** [listenote.vercel.app](https://listenote.vercel.app/)
 
 ### The problem
