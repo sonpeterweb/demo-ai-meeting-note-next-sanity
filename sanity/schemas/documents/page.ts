@@ -47,7 +47,6 @@ export default defineType({
         { type: "cta" },
         { type: "logo-cloud" },
         { type: "faqs" },
-        { type: "form-newsletter" },
       ],
       options: {
         insertMenu: {
@@ -91,11 +90,6 @@ export default defineType({
               name: "faqs",
               title: "FAQs",
               of: ["faqs"],
-            },
-            {
-              name: "forms",
-              title: "Forms",
-              of: ["form-newsletter"],
             },
           ],
           views: [{ name: "list" }],

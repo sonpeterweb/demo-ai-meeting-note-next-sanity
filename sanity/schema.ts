@@ -33,7 +33,6 @@ import gridRow from "./schemas/blocks/grid/grid-row";
 import cta from "./schemas/blocks/cta/cta";
 import logoCloud from "./schemas/blocks/logo-cloud/logo-cloud";
 import faqs from "./schemas/blocks/faqs";
-import newsletter from "./schemas/blocks/forms/newsletter";
 import pricingRow from "./schemas/blocks/pricing/pricing-row";
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -71,6 +70,5 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     cta,
     logoCloud,
     faqs,
-    newsletter,
   ],
 };
