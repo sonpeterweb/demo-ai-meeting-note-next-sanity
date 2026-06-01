@@ -6,6 +6,36 @@
 
 [![Next.js][next-js]][next-js-url] [![Sanity][sanity]][sanity-url] [![React][react]][react-url] [![Typescript][typescript]][typescript-url] [![Tailwind][tailwind]][tailwind-url] [![Shadcn][shadcn]][shadcn-url]
 
+**Live demo:** [listenote.vercel.app](https://listenote.vercel.app/)
+
+## Case study
+
+**Role:** Frontend / full-stack engineer (solo) — Peter
+**Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Sanity CMS · OpenAI · Vitest · Vercel
+**Live:** [listenote.vercel.app](https://listenote.vercel.app/)
+
+### The problem
+
+Most "AI SaaS" portfolio pieces stop at a static landing page. I wanted a demo that proves I can ship the things real clients pay for: a marketing site their team can edit without a developer, plus a genuinely interactive product feature backed by a server-side AI integration.
+
+### What I built
+
+- **CMS-driven marketing site.** The homepage, pricing tiers, and CTAs are composed from typed Sanity blocks (`hero`, `pricing-row`, `cta`, etc.), so non-technical editors can restructure pages in Sanity Studio (`/studio`) with live visual editing — no redeploy required.
+- **Interactive AI meeting-notes demo (`/ai-demo`).** Users paste a transcript or load a sample, and a Next.js **server action** calls an AI provider (OpenAI adapter) to return a structured summary, key decisions, and action items. Sample transcripts run fully offline; live calls degrade gracefully with clear error states for quota/auth issues.
+- **Sanity-powered changelog (`/what-new`).** Release entries with impact badges, audience targeting, and Portable Text bodies, including list/detail routes and empty states.
+- **Production polish.** Accessible shadcn/ui components, `prefers-reduced-motion`-aware Framer Motion hero, SEO metadata, Open Graph image, sitemap, and PWA icons.
+
+### Engineering highlights
+
+- **End-to-end type safety** — GROQ queries generate TypeScript types (`sanity.types.ts`); blocks render through a discriminated-union `componentMap`.
+- **Server-first data fetching** — React Server Components by default, client components only where interactivity is required, with ISR/revalidation on content lists.
+- **Tested core logic** — Vitest coverage for the AI server action, OpenAI adapter, provider error handling, and key UI blocks (17 tests).
+- **Resilient AI layer** — provider abstraction, timeouts, and heuristic fallbacks keep the demo stable without API credentials.
+
+### Outcome
+
+A single deployment serving a marketing site, an editable CMS, and a working AI feature — demonstrating I can own a modern Next.js + headless-CMS product from schema to UI to deploy. Try it: [listenote.vercel.app](https://listenote.vercel.app/).
+
 ## Getting Started
 
 ### Demo overview
