@@ -1,167 +1,183 @@
 # Listenote — AI Meeting Notes Demo
 
-**Listenote** turns meeting transcripts into clear summaries, decisions, and action items. This portfolio demo includes a marketing site (Sanity-driven blocks and pricing), a changelog, and an interactive AI workflow.
-
-![Screenshot of Sanity Studio using Presentation Tool to do Visual Editing](https://cdn.sanity.io/images/a03xrv11/production/e83fee6a672a9df53548878eccddc0f962d1cac8-1920x931.webp)
+**Listenote** turns meeting transcripts into clear summaries, decisions, and action items. A portfolio demo combining a Sanity-driven marketing site, an interactive AI workflow, and a CMS-powered changelog.
 
 [![Next.js][next-js]][next-js-url] [![Sanity][sanity]][sanity-url] [![React][react]][react-url] [![Typescript][typescript]][typescript-url] [![Tailwind][tailwind]][tailwind-url] [![Shadcn][shadcn]][shadcn-url]
 
 **Live demo:** [listenote.vercel.app](https://listenote.vercel.app/)
 
-## Case study
+| | |
+|---|---|
+| **Stack** | Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui · Sanity CMS · OpenAI · Vitest · Vercel |
+| **Tests** | 24 passing (Vitest) |
+| **Build** | Production-ready (`pnpm build`) |
 
-**Role:** Frontend / full-stack engineer (solo) — Peter Son 
-**Stack:** Next.js 15 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Sanity CMS · OpenAI · Vitest · Vercel 
-**Live:** [listenote.vercel.app](https://listenote.vercel.app/)
+## Screenshots
+
+### Homepage
+
+![Listenote homepage — CMS-driven marketing site with animated hero and pricing](./public/images/screenshots/home.png)
+
+### AI demo
+
+![AI demo — paste a transcript and get structured summaries and action items](./public/images/screenshots/ai-demo.png])
+
+### Sanity Studio
+
+![Sanity Studio — visual editing for pages, pricing, changelog, and AI demo content](./public/images/screenshots/studio.png)
+
+## At a glance
+
+| Route | What it demonstrates |
+|---|---|
+| `/` | CMS-driven marketing homepage with animated hero, pricing tiers, and CTAs |
+| `/ai-demo` | Server-action AI workflow — paste a transcript, get structured output |
+| `/what-new` | Sanity-powered changelog with list + detail routes |
+| `/studio` | Sanity Studio with visual editing and typed content blocks |
+
+## Case study
 
 ### The problem
 
-Most "AI SaaS" portfolio pieces stop at a static landing page. I wanted a demo that proves I can ship the things real clients pay for: a marketing site their team can edit without a developer, plus a genuinely interactive product feature backed by a server-side AI integration.
+Most "AI SaaS" portfolio pieces stop at a static landing page. I wanted a demo that proves I can ship what real clients pay for: a marketing site their team can edit without a developer, plus a genuinely interactive product feature backed by server-side AI.
 
 ### What I built
 
-- **CMS-driven marketing site.** The homepage, pricing tiers, and CTAs are composed from typed Sanity blocks (`hero`, `pricing-row`, `cta`, etc.), so non-technical editors can restructure pages in Sanity Studio (`/studio`) with live visual editing — no redeploy required.
-- **Interactive AI meeting-notes demo (`/ai-demo`).** Users paste a transcript or load a sample, and a Next.js **server action** calls an AI provider (OpenAI adapter) to return a structured summary, key decisions, and action items. Sample transcripts run fully offline; live calls degrade gracefully with clear error states for quota/auth issues.
-- **Sanity-powered changelog (`/what-new`).** Release entries with impact badges, audience targeting, and Portable Text bodies, including list/detail routes and empty states.
-- **Production polish.** Accessible shadcn/ui components, `prefers-reduced-motion`-aware Framer Motion hero, SEO metadata, Open Graph image, sitemap, and PWA icons.
+- **CMS-driven marketing site** — Homepage, pricing, and CTAs are composed from typed Sanity blocks (`hero`, `pricing-row`, `cta`, etc.). Non-technical editors restructure pages in Studio with live visual editing — no redeploy required.
+- **Interactive AI demo (`/ai-demo`)** — Users paste a transcript or load a sample. A Next.js server action calls an OpenAI adapter and returns structured summaries, decisions, and action items. Samples run offline; live calls degrade gracefully with clear error states.
+- **Sanity-powered changelog (`/what-new`)** — Release entries with impact badges, audience targeting, and Portable Text bodies, including list/detail routes and empty states.
+- **Production polish** — Accessible shadcn/ui components, `prefers-reduced-motion`-aware Framer Motion hero, SEO metadata, Open Graph image, sitemap, and PWA icons.
 
 ### Engineering highlights
 
 - **End-to-end type safety** — GROQ queries generate TypeScript types (`sanity.types.ts`); blocks render through a discriminated-union `componentMap`.
-- **Server-first data fetching** — React Server Components by default, client components only where interactivity is required, with ISR/revalidation on content lists.
-- **Tested core logic** — Vitest coverage for the AI server action, OpenAI adapter, provider error handling, and key UI blocks (17 tests).
-- **Resilient AI layer** — provider abstraction, timeouts, and heuristic fallbacks keep the demo stable without API credentials.
+- **Server-first architecture** — React Server Components by default; client components only where interactivity is required; ISR/revalidation on content lists.
+- **Tested core logic** — Vitest coverage for the AI server action, OpenAI adapter, provider error handling, bot protection, and key UI blocks.
+- **Resilient AI layer** — Provider abstraction, timeouts, heuristic fallbacks, and Cloudflare Turnstile bot protection keep the demo stable in production.
 
 ### Outcome
 
-A single deployment serving a marketing site, an editable CMS, and a working AI feature — demonstrating I can own a modern Next.js + headless-CMS product from schema to UI to deploy. Try it: [listenote.vercel.app](https://listenote.vercel.app/).
+A single deployment serving a marketing site, an editable CMS, and a working AI feature — demonstrating ownership of a modern Next.js + headless-CMS product from schema to UI to deploy.
 
-## Getting Started
+---
 
-### Demo overview
+## Getting started
 
-Listenote is an AI meeting-notes SaaS demo with a complete marketing + product-experience stack:
+### Prerequisites
 
-- `/**` (Marketing homepage) – Hero animations narrate "meeting → notes → actions", while pricing tiers, CTAs, and messaging are editable via Sanity (`hero`, `pricing-tier` docs). Framer Motion sequences respect `prefers-reduced-motion`, and shadcn/ui cards produce polished, accessible layouts.
-- `/what-new` (Changelog) – Lists `changelog-entry` documents from Sanity with release date, impact badge, audience targeting, highlights, and portable-text body copy. Empty states are handled when no entries exist.
-  - `/what-new/[slug]` (Changelog detail) – Deep links into the same content with consistent badges, breadcrumbs, and share-ready layout.
-- `/ai-demo` (Interactive AI workflow) – A guided experience backed by `ai-demo-sample` and `ai-demo-config` documents. Users can load sample transcripts, run a server action (`submitMeetingTranscript`) that calls an AI provider (OpenAI adapter included), and review structured summaries with copy/email/export affordances. Heuristic fallbacks keep the demo stable if credentials are missing.
-
-Supporting documents (`pricing-tier`, `changelog-entry`, `ai-demo-sample`, `ai-demo-config`, `admin-user`) are registered in Sanity Studio.
+- Node.js 20+
+- [pnpm](https://pnpm.io/) (recommended) or npm
+- A Sanity project (or use the bundled seed data)
 
 ### Run locally
 
-1. Clone the repository and install dependencies:
-
 ```bash
 pnpm install
-```
-
-2. Copy environment variables (see [Environment variables](#environment-variables)) into `.env.local`.
-
-3. Start the development server:
-
-```bash
+cp .env.example .env.local   # then fill in your values
 pnpm dev
 ```
 
-4. Open the app at [http://localhost:3000](http://localhost:3000) and the Studio at [http://localhost:3000/studio](http://localhost:3000/studio).
+Open the app at [http://localhost:3000](http://localhost:3000) and Studio at [http://localhost:3000/studio](http://localhost:3000/studio).
 
-### Adding content with Sanity
-
-#### Import sample data (optional)
+### Import sample content
 
 ```bash
 npx sanity dataset import listenote-seed.ndjson production --replace
 ```
 
-#### Publish your first document
+Document types: `Page`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, `FAQ`, `Category`, `Admin User`.
 
-Document types include `Category`, `FAQ`, `Page`, `Pricing Tier`, `Changelog Entry`, `AI Demo Sample`, `AI Demo Config`, and `Admin User`.
+### Configure the AI demo (optional)
 
-From the Studio, create and publish a `Page` document. Content appears on the site once published.
+Without an API key, the UI works with demo samples and lightweight heuristic summaries.
 
-#### Extend the schema
+To connect a live provider:
 
-Page blocks live under `sanity/schemas/blocks/`. Add new block schema types, register them in `sanity/schema.ts` and `sanity/schemas/documents/page.ts`, then add matching query fragments and React components in `sanity/queries/` and `components/blocks/`.
+```bash
+OPENAI_API_KEY=sk-...
+AI_DEMO_PROVIDER=openai
+AI_DEMO_MODEL=gpt-4o-mini
+AI_DEMO_MAX_TOKENS=1200
+AI_DEMO_TEMPERATURE=0.7
+```
 
-#### Configure the AI demo (optional)
+Update the **AI Demo Config** document in Studio to tweak the system prompt, model, and temperature.
 
-The `/ai-demo` route showcases the meeting summarization workflow. To connect it to a live provider:
+### Protect live AI from bots (production)
 
-1. Create an API key with your preferred provider (the project ships with an OpenAI-ready adapter).
-2. Add the following variables to your `.env.local` file:
-   ```bash
-   OPENAI_API_KEY=sk-...
-   OPENAI_API_BASE=https://api.openai.com/v1 # optional if using the default endpoint
-   AI_DEMO_PROVIDER=openai
-   AI_DEMO_MODEL=gpt-4o-mini
-   AI_DEMO_MAX_TOKENS=1200
-   AI_DEMO_TEMPERATURE=0.7
-   ```
-3. Update the “AI Demo Config” document in Sanity Studio to tweak the system prompt, model, and temperature.
-
-Without an API key, the UI still works with demo samples and lightweight heuristic summaries.
-
-#### Protect live AI from bots (recommended for production)
-
-Custom transcripts call OpenAI and can cost money if abused. **Sample transcripts never call OpenAI** and do not require verification.
+Custom transcripts call OpenAI and can incur cost if abused. **Sample transcripts never call OpenAI.**
 
 For production, add [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) (free):
 
-1. Create a Turnstile widget in the Cloudflare dashboard for your domain.
-2. Add to `.env.local` and Vercel:
-   ```bash
-   NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
-   TURNSTILE_SECRET_KEY=...
-   ```
-3. Redeploy. Custom transcript runs show a human verification checkbox before submit.
+```bash
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
+TURNSTILE_SECRET_KEY=...
+```
 
 If Turnstile keys are missing in production (`NEXT_PUBLIC_SITE_ENV=production`), live AI on custom transcripts is disabled — samples still work.
 
-### Deploying
+### Deploy
 
-1. Add your production URL to CORS origins in your Sanity project settings.
-2. Push to GitHub and deploy on [Vercel](https://vercel.com/new) (or your host of choice).
-3. Copy environment variables from `.env.local` into the deployment settings.
+1. Add your production URL to CORS origins in Sanity project settings.
+2. Push to GitHub and deploy on [Vercel](https://vercel.com/new).
+3. Copy environment variables from `.env.local` into deployment settings.
 
-### Inviting collaborators
+Invite collaborators via [Sanity Manage](https://www.sanity.io/manage).
 
-Open [Sanity Manage](https://www.sanity.io/manage), select your project, and invite members so they can use the deployed Studio.
+---
 
-## Sanity TypeGen
+## Extending the CMS
 
-```bash
-npx sanity schema extract
-npx sanity typegen generate
-```
+Page blocks live under `sanity/schemas/blocks/`. To add a new block:
 
-Or use the npm script:
+1. Create the schema in `sanity/schemas/blocks/`
+2. Register it in `sanity/schema.ts` and `sanity/schemas/documents/page.ts`
+3. Add a GROQ query fragment in `sanity/queries/`
+4. Add a React component in `components/blocks/`
+
+Regenerate types after schema changes:
 
 ```bash
 pnpm typegen
 ```
 
+---
+
 ## Environment variables
 
-- `NEXT_PUBLIC_SITE_URL` – Site URL without trailing slash (e.g. `https://yourwebsite.com`).
-- `NEXT_PUBLIC_SITE_ENV` – `development` prevents search engine indexing on staging.
-- `NEXT_PUBLIC_SANITY_API_VERSION` – Sanity API version (e.g. `2024-01-01`).
-- `NEXT_PUBLIC_SANITY_PROJECT_ID` – Sanity project ID.
-- `NEXT_PUBLIC_SANITY_DATASET` – Dataset name (e.g. `production`).
-- `SANITY_API_READ_TOKEN` – Read token for fetching content in Next.js.
-- `OPENAI_API_KEY`, `AI_DEMO_PROVIDER`, `AI_DEMO_MODEL`, etc. – See AI demo section above.
-- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` – Cloudflare Turnstile for `/ai-demo` bot protection (required for live AI in production).
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Site URL without trailing slash |
+| `NEXT_PUBLIC_SITE_ENV` | Set to `development` on staging to block search indexing |
+| `NEXT_PUBLIC_SANITY_API_VERSION` | Sanity API version (e.g. `2024-01-01`) |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity project ID |
+| `NEXT_PUBLIC_SANITY_DATASET` | Dataset name (e.g. `production`) |
+| `SANITY_API_READ_TOKEN` | Read token for fetching content in Next.js |
+| `OPENAI_API_KEY` | OpenAI API key for live AI demo |
+| `AI_DEMO_PROVIDER` | Provider adapter (`openai`) |
+| `AI_DEMO_MODEL` | Model name (e.g. `gpt-4o-mini`) |
+| `AI_DEMO_MAX_TOKENS` | Max tokens for AI responses |
+| `AI_DEMO_TEMPERATURE` | Sampling temperature |
+| `AI_DEMO_TIMEOUT_MS` | Provider timeout in ms (default `15000`) |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key |
 
-[react-url]: https://reactjs.org/
-[next-js-url]: https://nextjs.org/
-[typescript-url]: https://www.typescriptlang.org/
-[tailwind-url]: https://tailwindcss.com/
-[shadcn-url]: https://ui.shadcn.com/
-[sanity-url]: https://www.sanity.io/
-[react]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[next-js]: https://img.shields.io/badge/Next.js-20232A?style=for-the-badge&logo=Next.js
-[typescript]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
-[tailwind]: https://img.shields.io/badge/Tailwind_CSS-20232A?style=for-the-badge&logo=tailwindcss&logoColor=319795
-[shadcn]: https://img.shields.io/badge/shadcn/ui-20232A?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2IiBjbGFzcz0iaC02IHctNiI+PHJlY3Qgd2lkdGg9IjI1NiIgaGVpZ2h0PSIyNTYiIGZpbGw9Im5vbmUiPjwvcmVjdD48bGluZSB4MT0iMjA4IiB5MT0iMTI4IiB4Mj0iMTI4IiB5Mj0iMjA4IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMzIiPjwvbGluZT48bGluZSB4MT0iMTkyIiB5MT0iNDAiIHgyPSI0MCIgeTI9IjE5MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjMyIj48L2xpbmU+PC9zdmc+&logoColor=ffffff
-[sanity]: https://img.shields.io/badge/Sanity-20232A?style=for-the-badge&logo=sanity&logoColor=F97316
+---
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Production build |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run ESLint |
+| `pnpm test` | Run Vitest test suite |
+| `pnpm typecheck` | TypeScript type check |
+| `pnpm typegen` | Regenerate Sanity TypeGen types |
+
+---
+
+## License
+
+See [LICENSE](LICENSE).
