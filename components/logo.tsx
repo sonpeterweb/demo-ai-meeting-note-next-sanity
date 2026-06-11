@@ -18,7 +18,7 @@ export default function Logo({ settings }: { settings: SETTINGS_QUERYResult }) {
   // During SSR or before hydration, use light theme as default
   const themeToUse = mounted ? resolvedTheme : "light";
 
-  // Select the appropriate logo based on resolved theme (handles "system" correctly)
+  // Select the appropriate logo based on the resolved theme
   const selectedLogo =
     settings?.logo?.[themeToUse === "dark" ? "dark" : "light"];
 

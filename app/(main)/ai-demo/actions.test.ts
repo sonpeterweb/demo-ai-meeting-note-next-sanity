@@ -4,6 +4,7 @@ import { unstable_noStore } from "next/cache";
 import * as sanityFetch from "@/sanity/lib/fetch";
 import * as aiConfig from "@/lib/ai/config";
 import * as aiProviders from "@/lib/ai/providers";
+import * as botProtection from "@/lib/ai-demo/bot-protection";
 import { INITIAL_FORM_STATE, type SummarizeFormState } from "./form-utils";
 import { submitMeetingTranscript } from "./actions";
 
@@ -14,8 +15,15 @@ describe("submitMeetingTranscript", () => {
   let fetchSamplesSpy: any;
   let getConfigSpy: any;
   let summarizeSpy: any;
+  let humanCheckSpy: any;
 
   beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_ENV", "test");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "");
+    vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "");
+    humanCheckSpy = vi
+      .spyOn(botProtection, "assertHumanForLiveDemo")
+      .mockResolvedValue({ ok: true });
     vi.mocked(unstable_noStore).mockClear();
     fetchSampleSpy = vi.spyOn(sanityFetch, "fetchAIDemoSampleById").mockResolvedValue(null);
     fetchSamplesSpy = vi.spyOn(sanityFetch, "fetchAIDemoSamples").mockResolvedValue([]);
@@ -35,6 +43,8 @@ describe("submitMeetingTranscript", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
+    humanCheckSpy.mockRestore();
     fetchSampleSpy.mockRestore();
     fetchSamplesSpy.mockRestore();
     getConfigSpy.mockRestore();
@@ -97,8 +107,9 @@ describe("submitMeetingTranscript", () => {
 
     const result = await submitMeetingTranscript(INITIAL_FORM_STATE, formData);
 
-    expect(result.status).toBe("error");
-    expect(result.errors).toBeDefined();
+    expect(result.status).toBe("success");
+    expect(result.result?.summary).toBe("AI generated summary.");
+    expect(summarizeSpy).toHaveBeenCalled();
   });
 
   it("falls back to synthesized summary when provider throws an error", async () => {
@@ -109,8 +120,9 @@ describe("submitMeetingTranscript", () => {
 
     const result = await submitMeetingTranscript(INITIAL_FORM_STATE, formData);
 
-    expect(result.status).toBe("error");
-    expect(result.errors).toBeDefined();
+    expect(result.status).toBe("success");
+    expect(result.message).toMatch(/draft summary/i);
+    expect(result.result?.summary).toBeTruthy();
   });
 
   it("falls back when provider times out", async () => {
@@ -129,8 +141,23 @@ describe("submitMeetingTranscript", () => {
     await vi.advanceTimersByTimeAsync(15_000);
     const result = await promise;
 
+    expect(result.status).toBe("success");
+    expect(result.message).toMatch(/timed out/i);
+  });
+
+  it("blocks live AI when honeypot field is filled", async () => {
+    humanCheckSpy.mockRestore();
+    humanCheckSpy = vi.spyOn(botProtection, "assertHumanForLiveDemo");
+
+    const formData = new FormData();
+    formData.set("transcript", baseTranscript);
+    formData.set("website", "https://spam.example");
+
+    const result = await submitMeetingTranscript(INITIAL_FORM_STATE, formData);
+
     expect(result.status).toBe("error");
-    expect(result.errors).toBeDefined();
+    expect(result.errors?.general).toMatch(/unable to process/i);
+    expect(summarizeSpy).not.toHaveBeenCalled();
   });
 });
 
