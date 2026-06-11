@@ -16,6 +16,7 @@ import {
   classifyProviderError,
   providerErrorUserMessage,
 } from "@/lib/ai/provider-errors";
+import { assertHumanForLiveDemo } from "@/lib/ai-demo/bot-protection";
 import { summarizeTranscript } from "@/lib/ai/providers";
 
 const PROVIDER_TIMEOUT_MS = Number(process.env.AI_DEMO_TIMEOUT_MS ?? 15_000);
@@ -75,6 +76,18 @@ export async function submitMeetingTranscript(
   }
 
   try {
+    if (!sampleId) {
+      const humanCheck = await assertHumanForLiveDemo(formData);
+      if (!humanCheck.ok) {
+        return {
+          status: "error",
+          errors: {
+            general: humanCheck.message,
+          },
+        };
+      }
+    }
+
     if (sampleId) {
       const sample = await fetchAIDemoSampleById({ id: sampleId });
       if (!sample) {

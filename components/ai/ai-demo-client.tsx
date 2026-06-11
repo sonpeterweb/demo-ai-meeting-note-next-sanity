@@ -2,6 +2,7 @@
 
 import {
   useActionState,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -21,6 +22,10 @@ import AIDemoEmptyState from "@/components/ai/ai-demo-empty-state";
 import AIDemoErrorPanel from "@/components/ai/ai-demo-error-panel";
 import AIDemoLoadingPanel from "@/components/ai/ai-demo-loading-panel";
 import AIDemoResultsPanel from "@/components/ai/ai-demo-results-panel";
+import AIDemoTurnstile, {
+  isTurnstileEnabled,
+} from "@/components/ai/ai-demo-turnstile";
+import { HONEYPOT_FIELD } from "@/lib/ai-demo/bot-protection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,14 +40,21 @@ export default function AIDemoClient({ samples }: Props) {
   const transcriptRef = useRef<HTMLTextAreaElement>(null);
   const [transcript, setTranscript] = useState<string>("");
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [isPrefilling, startTransition] = useTransition();
   const [state, formAction, isPending] = useActionState<
     SummarizeFormState,
     FormData
   >(submitMeetingTranscript, INITIAL_FORM_STATE);
 
+  const requiresHumanVerification =
+    !selectedSampleId && transcript.trim().length >= 200 && isTurnstileEnabled();
+  const hasHumanVerification =
+    !requiresHumanVerification || Boolean(turnstileToken);
   const isTranscriptRunnable =
-    transcript.trim().length >= 200 || Boolean(selectedSampleId);
+    (transcript.trim().length >= 200 || Boolean(selectedSampleId)) &&
+    hasHumanVerification;
   const showEmptyState = state.status === "idle" && !isPending;
   const showResults = state.status === "success" && state.result;
   const showGeneralError =
@@ -95,13 +107,38 @@ export default function AIDemoClient({ samples }: Props) {
   };
 
   const handleRetry = () => {
+    if (requiresHumanVerification && !turnstileToken) {
+      return;
+    }
+
     const data = new FormData();
     data.set("transcript", transcript);
     data.set("sampleId", selectedSampleId ?? "");
+    if (turnstileToken) {
+      data.set("turnstileToken", turnstileToken);
+    }
     startTransition(() => {
       formAction(data);
     });
   };
+
+  const handleTurnstileTokenChange = (token: string | null) => {
+    setTurnstileToken(token);
+  };
+
+  const bumpTurnstileReset = () => {
+    setTurnstileToken(null);
+    setTurnstileResetKey((key) => key + 1);
+  };
+
+  useEffect(() => {
+    if (
+      !selectedSampleId &&
+      (state.status === "success" || state.status === "error")
+    ) {
+      bumpTurnstileReset();
+    }
+  }, [state.status, state.completedAt, selectedSampleId]);
 
   return (
     <div className="pb-16 pt-12">
@@ -212,6 +249,19 @@ export default function AIDemoClient({ samples }: Props) {
             <CardContent>
               <form action={formAction} className="space-y-6">
                 <input type="hidden" name="sampleId" value={selectedSampleId ?? ""} />
+                <input
+                  type="hidden"
+                  name="turnstileToken"
+                  value={turnstileToken ?? ""}
+                />
+                <input
+                  type="text"
+                  name={HONEYPOT_FIELD}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -left-[9999px] h-0 w-0 opacity-0"
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="transcript">Meeting transcript</Label>
@@ -296,9 +346,24 @@ export default function AIDemoClient({ samples }: Props) {
                   </p>
                 </div>
 
+                {requiresHumanVerification && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Verify you&apos;re human before running live AI on custom
+                      transcripts. Samples skip this step.
+                    </p>
+                    <AIDemoTurnstile
+                      resetKey={turnstileResetKey}
+                      onTokenChange={handleTurnstileTokenChange}
+                    />
+                  </div>
+                )}
+
                 <SubmissionFooter
                   demoTip={selectedSample?.demoTips}
                   isRunnable={isTranscriptRunnable}
+                  needsVerification={requiresHumanVerification}
+                  hasVerification={hasHumanVerification}
                 />
               </form>
             </CardContent>
@@ -339,9 +404,13 @@ export default function AIDemoClient({ samples }: Props) {
 function SubmissionFooter({
   demoTip,
   isRunnable,
+  needsVerification,
+  hasVerification,
 }: {
   demoTip?: string | null;
   isRunnable: boolean;
+  needsVerification: boolean;
+  hasVerification: boolean;
 }) {
   const { pending } = useFormStatus();
   const isBusy = pending;
@@ -370,7 +439,13 @@ function SubmissionFooter({
         </p>
       )}
 
-      {!isRunnable && (
+      {!isRunnable && needsVerification && !hasVerification && (
+        <p className="text-xs text-muted-foreground">
+          Complete the verification check above to run live AI on your transcript.
+        </p>
+      )}
+
+      {!isRunnable && !needsVerification && (
         <p className="text-xs text-muted-foreground">
           Provide at least 200 characters or select a sample to enable generation.
         </p>

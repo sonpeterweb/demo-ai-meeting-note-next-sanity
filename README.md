@@ -103,6 +103,22 @@ The `/ai-demo` route showcases the meeting summarization workflow. To connect it
 
 Without an API key, the UI still works with demo samples and lightweight heuristic summaries.
 
+#### Protect live AI from bots (recommended for production)
+
+Custom transcripts call OpenAI and can cost money if abused. **Sample transcripts never call OpenAI** and do not require verification.
+
+For production, add [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) (free):
+
+1. Create a Turnstile widget in the Cloudflare dashboard for your domain.
+2. Add to `.env.local` and Vercel:
+   ```bash
+   NEXT_PUBLIC_TURNSTILE_SITE_KEY=...
+   TURNSTILE_SECRET_KEY=...
+   ```
+3. Redeploy. Custom transcript runs show a human verification checkbox before submit.
+
+If Turnstile keys are missing in production (`NEXT_PUBLIC_SITE_ENV=production`), live AI on custom transcripts is disabled — samples still work.
+
 ### Deploying
 
 1. Add your production URL to CORS origins in your Sanity project settings.
@@ -135,6 +151,7 @@ pnpm typegen
 - `NEXT_PUBLIC_SANITY_DATASET` – Dataset name (e.g. `production`).
 - `SANITY_API_READ_TOKEN` – Read token for fetching content in Next.js.
 - `OPENAI_API_KEY`, `AI_DEMO_PROVIDER`, `AI_DEMO_MODEL`, etc. – See AI demo section above.
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` – Cloudflare Turnstile for `/ai-demo` bot protection (required for live AI in production).
 
 [react-url]: https://reactjs.org/
 [next-js-url]: https://nextjs.org/

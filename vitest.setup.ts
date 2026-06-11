@@ -1,6 +1,9 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
+process.env.NEXT_PUBLIC_SITE_ENV = "test";
+process.env.TURNSTILE_SECRET_KEY = "";
+process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "";
 process.env.NEXT_PUBLIC_SANITY_DATASET ??= "test";
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ??= "test";
 process.env.NEXT_PUBLIC_SANITY_API_VERSION ??= "2024-10-31";

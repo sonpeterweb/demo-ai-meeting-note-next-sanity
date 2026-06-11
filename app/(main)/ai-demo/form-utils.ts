@@ -6,9 +6,10 @@ export const FORM_SCHEMA = z.object({
     .transform((value) => value.trim())
     .refine((value) => value.length > 0, "Please provide a meeting transcript."),
   sampleId: z
-    .string()
-    .optional()
-    .transform((value) => (value && value.length > 0 ? value : undefined)),
+    .union([z.string(), z.null(), z.undefined()])
+    .transform((value) =>
+      typeof value === "string" && value.length > 0 ? value : undefined
+    ),
 });
 
 export type SummarizeFormState = {
