@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type TurnstileRenderOptions = {
   sitekey: string;
@@ -18,9 +18,12 @@ declare global {
       reset: (widgetId: string) => void;
       remove: (widgetId: string) => void;
     };
-    onTurnstileLoad?: () => void;
   }
 }
+
+const TURNSTILE_SCRIPT_ID = "cf-turnstile-script";
+const TURNSTILE_SCRIPT_SRC =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 type Props = {
   onTokenChange: (token: string | null) => void;
@@ -30,10 +33,23 @@ type Props = {
 export default function AIDemoTurnstile({ onTokenChange, resetKey = 0 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
-  const [scriptReady, setScriptReady] = useState(false);
-  const instanceId = useId();
+  const onTokenChangeRef = useRef(onTokenChange);
+  const prevResetKeyRef = useRef(resetKey);
+  const [scriptReady, setScriptReady] = useState(() =>
+    typeof window !== "undefined" && Boolean(window.turnstile)
+  );
 
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  useEffect(() => {
+    onTokenChangeRef.current = onTokenChange;
+  }, [onTokenChange]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.turnstile) {
+      setScriptReady(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!siteKey || !scriptReady || !containerRef.current || !window.turnstile) {
@@ -41,18 +57,15 @@ export default function AIDemoTurnstile({ onTokenChange, resetKey = 0 }: Props) 
     }
 
     if (widgetIdRef.current) {
-      window.turnstile.remove(widgetIdRef.current);
-      widgetIdRef.current = null;
+      return;
     }
-
-    onTokenChange(null);
 
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
       theme: "auto",
-      callback: (token) => onTokenChange(token),
-      "expired-callback": () => onTokenChange(null),
-      "error-callback": () => onTokenChange(null),
+      callback: (token) => onTokenChangeRef.current(token),
+      "expired-callback": () => onTokenChangeRef.current(null),
+      "error-callback": () => onTokenChangeRef.current(null),
     });
 
     return () => {
@@ -61,7 +74,22 @@ export default function AIDemoTurnstile({ onTokenChange, resetKey = 0 }: Props) 
         widgetIdRef.current = null;
       }
     };
-  }, [siteKey, scriptReady, resetKey, onTokenChange]);
+  }, [siteKey, scriptReady]);
+
+  useEffect(() => {
+    if (prevResetKeyRef.current === resetKey) {
+      return;
+    }
+
+    prevResetKeyRef.current = resetKey;
+
+    if (!widgetIdRef.current || !window.turnstile) {
+      return;
+    }
+
+    onTokenChangeRef.current(null);
+    window.turnstile.reset(widgetIdRef.current);
+  }, [resetKey]);
 
   if (!siteKey) {
     return null;
@@ -70,8 +98,8 @@ export default function AIDemoTurnstile({ onTokenChange, resetKey = 0 }: Props) 
   return (
     <>
       <Script
-        id={`turnstile-script-${instanceId}`}
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+        id={TURNSTILE_SCRIPT_ID}
+        src={TURNSTILE_SCRIPT_SRC}
         strategy="afterInteractive"
         onLoad={() => setScriptReady(true)}
       />

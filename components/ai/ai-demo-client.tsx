@@ -2,6 +2,7 @@
 
 import {
   useActionState,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -122,14 +123,14 @@ export default function AIDemoClient({ samples }: Props) {
     });
   };
 
-  const handleTurnstileTokenChange = (token: string | null) => {
+  const handleTurnstileTokenChange = useCallback((token: string | null) => {
     setTurnstileToken(token);
-  };
+  }, []);
 
-  const bumpTurnstileReset = () => {
+  const bumpTurnstileReset = useCallback(() => {
     setTurnstileToken(null);
     setTurnstileResetKey((key) => key + 1);
-  };
+  }, []);
 
   useEffect(() => {
     if (
@@ -138,7 +139,7 @@ export default function AIDemoClient({ samples }: Props) {
     ) {
       bumpTurnstileReset();
     }
-  }, [state.status, state.completedAt, selectedSampleId]);
+  }, [state.status, state.completedAt, selectedSampleId, bumpTurnstileReset]);
 
   return (
     <div className="pb-16 pt-12">
