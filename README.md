@@ -2,9 +2,16 @@
 
 **Listenote** turns meeting transcripts into clear summaries, decisions, and action items. A portfolio demo combining a Sanity-driven marketing site, an interactive AI workflow, and a CMS-powered changelog.
 
-[![Next.js][next-js]][next-js-url] [![Sanity][sanity]][sanity-url] [![React][react]][react-url] [![Typescript][typescript]][typescript-url] [![Tailwind][tailwind]][tailwind-url] [![Shadcn][shadcn]][shadcn-url]
+[![Next.js](https://img.shields.io/badge/Next.js-20232A?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Sanity](https://img.shields.io/badge/Sanity-20232A?style=for-the-badge&logo=sanity&logoColor=F97316)](https://www.sanity.io/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-20232A?style=for-the-badge&logo=typescript&logoColor=3178C6)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-20232A?style=for-the-badge&logo=tailwindcss&logoColor=38B2AC)](https://tailwindcss.com/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-20232A?style=for-the-badge)](https://ui.shadcn.com/)
 
 **Live demo:** [listenote.vercel.app](https://listenote.vercel.app/)
+
+## Overview
 
 | | |
 |---|---|
@@ -20,7 +27,7 @@
 
 ### AI demo
 
-![AI demo — paste a transcript and get structured summaries and action items](./public/images/screenshots/ai-demo.png])
+![AI demo — paste a transcript and get structured summaries and action items](./public/images/screenshots/ai-demo.png)
 
 ### Sanity Studio
 
